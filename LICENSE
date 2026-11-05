@@ -1,21 +1,3 @@
-This repository holds content under more than one license.
-
-1. Code (*.py, *.js, and the page lander/index.html): MIT License, below.
-
-2. The manual (docs/, except its code) and the run results (results/): Creative Commons
-   Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/legalcode
-
-3. Third-party material keeps its own license:
-   - Networks, prompts and logs from https://github.com/RikiyaT/lm_understand-logs are CC BY 4.0,
-     by the authors of "Sparks of Weight-Space Programming". They are fetched into data/ at run time.
-     lander/prompt.md follows the structure and the edits format of their Experiment 5 prompt.
-     results/exp1-* quote weights from their networks.
-   - MinAtar, by Kenny Young and Tian Tian, is GPL-3.0. This repository imports it at run time and
-     does not include it. Prompts that quote its source are fetched into data/ and are not committed.
-     A distribution that bundles MinAtar must follow GPL-3.0.
-
----
-
 MIT License
 
 Copyright (c) 2026 mraad

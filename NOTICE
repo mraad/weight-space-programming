@@ -1,0 +1,30 @@
+This file states which license applies to each part of this repository.
+
+MIT License (see LICENSE)
+  All code: *.py, the hand-written *.js files, and the pages lander/index.html and index.html.
+
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/legalcode
+  - docs/, except its scripts (build.js, capture.py, check_refs.py).
+  - results/ and lander/networks.js, which is generated from results/.
+  - README.md, CLAUDE.md and tasks/.
+  - lander/prompt.md, under the attribution below.
+
+Third-party material
+
+  "Sparks of Weight-Space Programming" logs, by Rikiya Takehi, Jayden Teoh, Alex Zhang and Omar Khattab.
+  https://github.com/RikiyaT/lm_understand-logs
+  License: CC BY 4.0 for logs, data and networks.
+  - wsp.py fetches these files into data/ at run time. They are not in this repository.
+  - lander/prompt.md is adapted from their Experiment 5 prompt. Its structure and the edits format
+    come from that prompt. The game, the network size and the score method were changed for Three Pads.
+  - results/exp1-* quote weights from their networks.
+
+  MinAtar, by Kenny Young and Tian Tian.
+  https://github.com/kenjyoung/MinAtar
+  License: GPL-3.0.
+  - This repository imports MinAtar at run time and does not include it.
+  - Prompts that quote its source are fetched into data/ and are not committed.
+  - A distribution that bundles MinAtar must follow GPL-3.0.
+
+Three Pads is original to this repository. It uses no assets from any existing game.

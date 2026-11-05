@@ -49,7 +49,7 @@ Manual section 14 lists all 75 references. `python3 docs/check_refs.py` checks e
 
 ## License
 
-Code: MIT. `docs/` and `results/`: CC BY 4.0. Third-party material keeps its own terms, and MinAtar, which the project imports but does not include, is GPL-3.0. See [`LICENSE`](LICENSE).
+Code is [MIT](LICENSE). `docs/`, `results/` and `lander/prompt.md` are CC BY 4.0. MinAtar, which the project imports but does not include, is GPL-3.0. [`NOTICE`](NOTICE) gives the details and the attribution.
 
 ## Layout
 

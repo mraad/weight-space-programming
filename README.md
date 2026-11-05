@@ -3,6 +3,10 @@
 Tests one claim on Claude: an LLM can read and write neural network weights with no training.
 Source: [Sparks of Weight-Space Programming](https://rikiyat.github.io/blog/weight-space-programming/) (Takehi et al., 2026).
 
+![Three Pads: a network written by Claude lands on pad 2, lands on pad 3, then changes course when the target changes from pad 1 to pad 3 in flight](docs/img/three-pads.gif)
+
+*Three Pads, an original landing game. The pilot is a 484-weight network that Claude wrote in one reply, with no tools, no feedback and no training. In the last flight, the target changes from pad 1 to pad 3 in flight. Shown at 2x speed. Rebuild with `.venv/bin/python docs/capture.py --gif`.*
+
 **Full manual: open [`docs/index.html`](docs/index.html).** It has the method, all results, every procedure and the limits.
 
 | Test | Result |

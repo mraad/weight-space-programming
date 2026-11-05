@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Weight-Space Programming Manual</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +29,7 @@
     --warn-bg: #33270f; --warn-line: #e0a23b;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --code-bg: #232b28; color-scheme: dark;
   }
-  body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
   main { max-width: 820px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
   main > * { min-width: 0; }
   h1 { font-size: 32px; line-height: 1.15; margin: 0; text-wrap: balance; }
@@ -72,7 +77,8 @@
   nav ol { columns: 2; column-gap: 28px; display: block; }
   @media (max-width: 560px) { nav ol { columns: 1; } h1 { font-size: 27px; } }
 </style>
-
+</head>
+<body>
 <main>
 <header style="display:grid;gap:8px">
   <h1>Weight-Space Programming Manual</h1>
@@ -395,7 +401,7 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
   </ol>
   <h3>10.2 Fly the craft</h3>
   <ol>
-    <li>Open <code>lander/index.html</code> in a browser.</li>
+    <li>Open <code>lander/index.html</code> in a browser, or open the <a href="https://mraad.github.io/weight-space-programming/lander/">online copy</a>.</li>
     <li>Set the pilot to <b>You</b>.</li>
     <li>Press <kbd>1</kbd>, <kbd>2</kbd> or <kbd>3</kbd> to select the target pad.</li>
     <li>Press the up arrow to fire the main engine.</li>
@@ -524,3 +530,5 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
   {{REFS_REPORT}}
 </section>
 </main>
+</body>
+</html>

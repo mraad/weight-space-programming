@@ -7,7 +7,9 @@ Source: [Sparks of Weight-Space Programming](https://rikiyat.github.io/blog/weig
 
 *Three Pads, an original landing game. The pilot is a 484-weight network that Claude wrote in one reply, with no tools, no feedback and no training. In the last flight, the target changes from pad 1 to pad 3 in flight. Shown at 2x speed. Rebuild with `.venv/bin/python docs/capture.py --gif`.*
 
-**Full manual: open [`docs/index.html`](docs/index.html).** It has the method, all results, every procedure and the limits.
+**[Play Three Pads](https://mraad.github.io/weight-space-programming/lander/) · [Read the manual](https://mraad.github.io/weight-space-programming/docs/)**
+
+The manual has the method, all results, every procedure and the limits.
 
 | Test | Result |
 |---|---|

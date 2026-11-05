@@ -1,0 +1,17 @@
+[project]
+name = "weight-space-programming"
+version = "0.1.0"
+description = "Replicate Weight-Space Programming experiments on Claude using the authors' released networks and prompts"
+license = "MIT"
+requires-python = ">=3.12,<3.14"
+dependencies = ["numpy>=2", "minatar==1.0.15"]
+
+[tool.uv]
+package = false
+# MinAtar pins plotting and pandas stacks it only needs for its GUI; the games need numpy alone.
+override-dependencies = ["seaborn; python_version<'0'", "matplotlib; python_version<'0'", "pandas; python_version<'0'", "scipy; python_version<'0'", "cycler; python_version<'0'", "kiwisolver; python_version<'0'", "pyparsing; python_version<'0'", "python-dateutil; python_version<'0'", "pytz; python_version<'0'", "six; python_version<'0'"]
+
+[dependency-groups]
+dev = [
+    "playwright==1.64.1",
+]

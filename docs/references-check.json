@@ -1,0 +1,306 @@
+{
+ "checked": "2026-11-05",
+ "results": {
+  "takehi2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "logs2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "singh2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "singhrepo2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "ozel2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "young2019minatar": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "minatarrepo": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "minatarpypi": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "schulman2017ppo": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "ho2020ddpm": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "elhage2021framework": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "matthews2025kinetix": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "hendrycks2021math": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "bowman2015snli": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "qwen": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "qwenedit": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "gemma": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "ste100": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "claudecode": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "uv": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "playwright": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "ccby": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "gpl3": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "koyamada2023pgx": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "olah2020zoom": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "wang2022ioi": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "bricken2023monosemanticity": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "cunningham2023sae": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "ameisen2025circuit": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "weightwatcher": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "meng2022rome": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "bills2023explain": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "nla2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "karvonen2025activationoracles": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "weightoracles": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "goel2025dit": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "neuronexplorer": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "workspacebench": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "kingma2015adam": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "jordan2024muon": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "yang2024opro": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "karpathy2026autoresearch": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "reactiveoptimizers": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "khattab2022dsp": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "lee2026metaharness": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "khattab2023dspy": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "opsahlong2024mipro": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "agrawal2025gepa": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "peebles2022gpt": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "schurholt2022hyper": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "wang2024pdiff": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "phang2023hypertuning": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "navon2023equivariant": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "neurogen2025": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "adderboard": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "spall1992spsa": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "salimans2017es": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "malladi2023mezo": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "qiu2026esllm": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "globis2023aozorabunko": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "wikimedia2023wikipedia": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "pipis2025loop": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "arditi2024refusal": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "karpathy2017": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "schlag2021": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "akhaliq2026demo": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "geva2021": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "weiss2021": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "lindner2023": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "friedman2023": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "nanda2023": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "quirke2023": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "guidelabs2026": {
+   "status": "title read by hand",
+   "source": "HTTP 200",
+   "detail": "PDF"
+  },
+  "benara2024": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "feng2026": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  }
+ }
+}

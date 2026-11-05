@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Pads</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #1d2024; --muted: #5d636b; --line: #d9d8d2;
+    --sky: #e9edf0; --ground: #6f7379; --pad: #8d9299; --target: #0b7a5e; --flame: #d9480f;
+    --pos: #c2410c; --neg: #0f766e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15171a; --panel: #1e2125; --ink: #ecedee; --muted: #a1a6ad; --line: #33373c;
+      --sky: #1a1e23; --ground: #7c8188; --pad: #6c7178; --target: #34d399; --flame: #fb923c;
+      --pos: #fb923c; --neg: #2dd4bf;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 12px; }
+  h1 { font-size: 20px; margin: 0; }
+  h2 { font-size: 13px; margin: 0 0 6px; color: var(--muted); font-weight: 600; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-width: 0; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  canvas { display: block; width: 100%; }
+  #view { border-radius: 8px; border: 1px solid var(--line); aspect-ratio: 100 / 66; touch-action: none; }
+  button, select { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; min-height: 40px; }
+  button { cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--target); border-color: var(--target); color: var(--bg); font-weight: 600; }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--target); outline-offset: 2px; }
+  select { max-width: 100%; }
+  #status { min-height: 1.5em; font-weight: 600; }
+  #controls button { flex: 1 1 80px; user-select: none; -webkit-user-select: none; touch-action: none; }
+  #controls button.held { background: var(--ink); color: var(--bg); }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th { font-weight: 400; color: var(--muted); text-align: left; }
+  td { text-align: right; }
+  th, td { padding: 2px 4px; }
+  .prob { display: grid; grid-template-columns: 56px 1fr 44px; gap: 8px; align-items: center; font-variant-numeric: tabular-nums; }
+  .prob i { display: block; height: 10px; background: var(--target); border-radius: 2px; }
+  .weights { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  .weights figure { margin: 0; flex: 0 0 auto; max-width: 100%; }
+  .weights figcaption { color: var(--muted); font-size: 12px; }
+  .weights canvas { image-rendering: pixelated; border: 1px solid var(--line); max-width: 100%; }
+  #design { white-space: pre-wrap; max-height: 220px; overflow: auto; }
+  .safe { color: var(--target); }
+  .fast { color: var(--flame); }
+  kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Three Pads</h1>
+    <p class="muted">Land slowly on the green pad. A network can fly it too: its weights were written by Claude in one reply, with no training.</p>
+  </header>
+
+  <div class="bar">
+    <label for="pilot">Pilot</label>
+    <select id="pilot"></select>
+    <span role="group" aria-label="Target pad" class="bar" id="pads"></span>
+    <button id="restart">New flight</button>
+  </div>
+
+  <p class="bar" aria-hidden="true"><b id="fuel"></b><b id="speed"></b></p>
+  <canvas id="view" width="1000" height="660" role="img" aria-label="Side view of the craft, the ground and three pads"></canvas>
+  <p id="status" role="status" aria-live="polite"></p>
+
+  <div class="bar" id="controls" role="group" aria-label="Engines">
+    <button data-key="left">◀ Left</button>
+    <button data-key="thrust">▲ Thrust</button>
+    <button data-key="right">Right ▶</button>
+  </div>
+  <p class="muted">Keys: <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> fly, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> change pad, <kbd>R</kbd> new flight. Pressing any engine control takes over from the network.</p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>State: the 8 numbers the pilot sees</h2>
+      <table id="state"></table>
+    </section>
+    <section class="panel">
+      <h2>Network output: chance of each action</h2>
+      <div id="probs"></div>
+      <p class="muted" id="probsNote"></p>
+    </section>
+  </div>
+
+  <section class="panel" id="weightsPanel">
+    <h2>Every weight of this network (orange positive, teal negative, blank zero)</h2>
+    <div class="weights">
+      <figure><canvas id="W1"></canvas><figcaption>W1: rows are 8 inputs, columns are 16 units</figcaption></figure>
+      <figure><canvas id="W2"></canvas><figcaption>W2: 16 units to 16 units</figcaption></figure>
+      <figure><canvas id="W3"></canvas><figcaption>W3: 4 actions</figcaption></figure>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Score over 3,000 unseen flights</h2>
+      <table id="scores"></table>
+    </section>
+    <section class="panel" id="designPanel">
+      <h2>Claude's own description of this network</h2>
+      <p id="design"></p>
+    </section>
+  </div>
+</main>
+
+<script src="sim.js"></script>
+<script src="policy.js"></script>
+<script src="networks.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const data = globalThis.NETWORKS || { networks: [], baselines: {} };
+  const pct = (v) => (v === undefined || v === null ? '–' : (v * 100).toFixed(1) + '%');
+  const TICK_MS = 1000 / 30;
+  const HOLD_AFTER_END_MS = 1500;
+  const MESSAGES = {
+    landed: 'Landed on the target pad.',
+    wrong_pad: 'Soft landing, but on the wrong pad.',
+    crashed: 'Crashed: too fast at touchdown.',
+    off_pad: 'Missed: touched down off the pads.',
+    lost: 'Lost: flew out of the area.',
+    timeout: 'Out of time.',
+  };
+
+  const pilots = [
+    ...data.networks.map((n) => ({ label: `${n.name} (${pct(n.landed)})`, network: n, act: Policy.netPilot(n.net) })),
+    { label: `Plain program (${pct(data.baselines.controller?.fixed_target.landed)})`, act: Policy.controllerPilot },
+    { label: 'You', human: true },
+    { label: `Random (${pct(data.baselines.random?.fixed_target.landed)})`, act: Policy.randomPilot },
+  ];
+
+  let pilot = pilots[0];
+  let s = Sim.reset(Math.random, 1);
+  let accumulator = 0, previous = performance.now(), endedAt = 0, alternate = false, dirty = true;
+  const held = { left: false, thrust: false, right: false };
+  const color = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  // --- controls ---
+  pilots.forEach((p, i) => $('pilot').add(new Option(p.label, i)));
+  // Drop focus so the arrow keys fly the craft and do not change the pilot list.
+  $('pilot').addEventListener('change', (e) => { selectPilot(pilots[e.target.value]); e.target.blur(); });
+  Sim.PADS.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.textContent = `Pad ${i + 1}`;
+    b.addEventListener('click', () => setTarget(i));
+    $('pads').append(b);
+  });
+  $('restart').addEventListener('click', newFlight);
+
+  function setPilot(p) {
+    pilot = p;
+    $('pilot').value = pilots.indexOf(p);
+    showPilot();
+    dirty = true;
+  }
+
+  function selectPilot(p) {
+    setPilot(p);
+    newFlight();
+  }
+
+  function setTarget(i) {
+    s.target = i;
+    dirty = true;
+    [...$('pads').children].forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+  }
+
+  function newFlight() {
+    s = Sim.reset(Math.random, s.target);
+    endedAt = 0;
+    dirty = true;
+    $('status').textContent = '';
+  }
+
+  function press(name, down) {
+    held[name] = down;
+    document.querySelector(`#controls [data-key=${name}]`).classList.toggle('held', down);
+    if (down && !pilot.human) setPilot(pilots.find((p) => p.human)); // take over the flight in progress
+  }
+
+  const KEYS = { ArrowLeft: 'left', ArrowUp: 'thrust', ArrowRight: 'right', a: 'left', w: 'thrust', d: 'right' };
+  addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'SELECT') return;
+    if (KEYS[e.key]) { e.preventDefault(); if (!e.repeat) press(KEYS[e.key], true); }
+    else if ('123'.includes(e.key)) setTarget(Number(e.key) - 1);
+    else if (e.key === 'r' || e.key === 'R') newFlight();
+  });
+  addEventListener('keyup', (e) => { if (KEYS[e.key]) press(KEYS[e.key], false); });
+  addEventListener('blur', () => Object.keys(held).forEach((k) => held[k] && press(k, false)));
+  document.querySelectorAll('#controls button').forEach((b) => {
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); b.setPointerCapture(e.pointerId); press(b.dataset.key, true); });
+    ['pointerup', 'pointercancel'].forEach((t) => b.addEventListener(t, () => press(b.dataset.key, false)));
+  });
+
+  // The game allows one action per tick, so holding thrust and a side engine alternates them.
+  function humanAction() {
+    const side = held.left ? 2 : held.right ? 3 : 0;
+    if (held.thrust && side) { alternate = !alternate; return alternate ? 1 : side; }
+    return held.thrust ? 1 : side;
+  }
+
+  // --- simulation loop ---
+  function frame(now) {
+    accumulator += Math.min(now - previous, 250);
+    previous = now;
+    while (accumulator >= TICK_MS) {
+      accumulator -= TICK_MS;
+      if (s.outcome) break;
+      const action = pilot.human ? humanAction() : pilot.act(s, Math.random);
+      Sim.step(s, action, Math.random);
+      dirty = true;
+    }
+    if (s.outcome) {
+      accumulator = 0;
+      if (!endedAt) {
+        endedAt = now;
+        $('status').textContent = MESSAGES[s.outcome];
+      } else if (!pilot.human && now - endedAt > HOLD_AFTER_END_MS) {
+        newFlight();
+      }
+    }
+    // The state only changes on a tick, so most frames have nothing new to paint.
+    if (dirty) {
+      draw();
+      showState();
+      dirty = false;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // --- drawing ---
+  const ctx = $('view').getContext('2d');
+  const W = $('view').width, H = $('view').height, SCALE = W / Sim.WIDTH, GROUND = H - 40;
+  const toX = (x) => x * SCALE, toY = (y) => GROUND - y * SCALE;
+
+  function draw() {
+    ctx.fillStyle = color('--sky');
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = color('--ground');
+    ctx.fillRect(0, GROUND, W, H - GROUND);
+    ctx.textAlign = 'center';
+    ctx.font = '700 32px system-ui, sans-serif';
+    Sim.PADS.forEach((p, i) => {
+      const isTarget = i === s.target;
+      ctx.fillStyle = isTarget ? color('--target') : color('--pad');
+      ctx.fillRect(toX(p - Sim.PAD_HALF_WIDTH), GROUND - 4, Sim.PAD_HALF_WIDTH * 2 * SCALE, 10);
+      ctx.fillStyle = color('--sky');
+      ctx.fillText(String(i + 1), toX(p), H - 12);
+    });
+    const x = toX(s.x), y = toY(s.y);
+    if (!s.outcome && s.fuel > 0) {
+      const firing = s.lastAction;
+      ctx.fillStyle = color('--flame');
+      if (firing === 1) triangle(x - 8, y, x + 8, y, x, y + 24);
+      if (firing === 2) triangle(x + 12, y - 16, x + 12, y - 4, x + 28, y - 10);
+      if (firing === 3) triangle(x - 12, y - 16, x - 12, y - 4, x - 28, y - 10);
+    }
+    const crashed = s.outcome && s.outcome !== 'landed' && s.outcome !== 'wrong_pad';
+    ctx.fillStyle = crashed ? color('--flame') : color('--ink');
+    ctx.fillRect(x - 12, y - 24, 24, 18);
+    ctx.fillRect(x - 16, y - 6, 8, 6);
+    ctx.fillRect(x + 8, y - 6, 8, 6);
+  }
+
+  function triangle(x1, y1, x2, y2, x3, y3) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x3, y3);
+    ctx.fill();
+  }
+
+  // --- readouts ---
+  $('state').innerHTML = Policy.INPUT_NAMES.map((n, i) => `<tr><th scope="row">${i}: ${n}</th><td id="in${i}"></td></tr>`).join('');
+  $('probs').innerHTML = Sim.ACTIONS.map((a, i) => `<div class="prob"><span>${a}</span><span><i id="bar${i}"></i></span><span id="p${i}"></span></div>`).join('');
+
+  function showState() {
+    const safe = Math.abs(s.vx) <= Sim.SAFE_VX && Math.abs(s.vy) <= Sim.SAFE_VY;
+    $('fuel').textContent = `Fuel ${Math.round(s.fuel)}`;
+    $('speed').textContent = safe ? 'Touchdown speed: safe' : 'Touchdown speed: too fast';
+    $('speed').className = safe ? 'safe' : 'fast';
+    Sim.observe(s).forEach((v, i) => { $(`in${i}`).textContent = v.toFixed(3); });
+    const probs = pilot.network ? Policy.forward(pilot.network.net, Sim.observe(s)).probs : null;
+    Sim.ACTIONS.forEach((_, i) => {
+      $(`bar${i}`).style.width = probs ? `${probs[i] * 100}%` : '0';
+      $(`p${i}`).textContent = probs ? `${Math.round(probs[i] * 100)}%` : '–';
+    });
+    $('probsNote').textContent = pilot.network ? '' : 'This pilot is not a network.';
+  }
+
+  const CELL_PX = 14;
+  function heatmap(canvas, matrix) {
+    const rows = matrix.length, cols = matrix[0].length;
+    canvas.width = cols;
+    canvas.height = rows;
+    canvas.style.width = `${cols * CELL_PX}px`; // one cell size, so the three matrices compare directly
+    const c = canvas.getContext('2d');
+    const top = Math.max(...matrix.flat().map(Math.abs)) || 1;
+    matrix.forEach((row, r) => row.forEach((v, j) => {
+      if (!v) return;
+      c.fillStyle = color(v > 0 ? '--pos' : '--neg');
+      // Square root keeps small weights visible next to very large ones.
+      c.globalAlpha = 0.2 + 0.8 * Math.sqrt(Math.abs(v) / top);
+      c.fillRect(j, r, 1, 1);
+    }));
+  }
+
+  function showPilot() {
+    const n = pilot.network;
+    $('weightsPanel').hidden = !n;
+    $('designPanel').hidden = !n;
+    if (n) {
+      ['W1', 'W2', 'W3'].forEach((k) => heatmap($(k), n.net[k]));
+      $('design').textContent = n.design;
+    }
+  }
+
+  const row = (label, fixed, moved) => `<tr><th scope="row">${label}</th><td>${pct(fixed)}</td><td>${pct(moved)}</td></tr>`;
+  const baselineRow = (label, b) => row(label, b?.fixed_target.landed, b?.mid_flight_switch.landed);
+  $('scores').innerHTML = '<tr><th>Pilot</th><td class="muted">Fixed pad</td><td class="muted">Pad changes</td></tr>'
+    + data.networks.map((n) => row(n.name, n.landed, n.landedSwitch)).join('')
+    + baselineRow('Plain program', data.baselines.controller) + baselineRow('Random', data.baselines.random);
+
+  setTarget(s.target);
+  showPilot();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

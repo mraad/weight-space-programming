@@ -1,0 +1,8 @@
+{
+ "guess": "breakout",
+ "answer_line": "Breakout (a brick-breaking paddle game, also similar to Arkanoid)",
+ "confidence": 60,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": true
+}

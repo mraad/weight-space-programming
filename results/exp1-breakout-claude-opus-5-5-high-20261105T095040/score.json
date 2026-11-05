@@ -1,0 +1,8 @@
+{
+ "guess": "breakout",
+ "answer_line": "Breakout (paddle-and-ball brick breaker, MinAtar-style)",
+ "confidence": 93,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": true
+}

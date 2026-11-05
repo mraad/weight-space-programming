@@ -1,0 +1,626 @@
+[
+ {
+  "id": "takehi2026",
+  "group": "manual",
+  "authors": "Takehi, Teoh, Zhang and Khattab",
+  "title": "Sparks of Weight-Space Programming: LLMs can natively read & write neural network weights",
+  "year": "2026",
+  "url": "https://rikiyat.github.io/blog/weight-space-programming/",
+  "expect": "Sparks of Weight-Space Programming"
+ },
+ {
+  "id": "logs2026",
+  "group": "manual",
+  "authors": "Takehi et al.",
+  "title": "lm_understand-logs: complete logs of the experiments, at commit 4d09ba6d",
+  "year": "2026",
+  "url": "https://github.com/RikiyaT/lm_understand-logs/tree/4d09ba6d6a7e891dd8063974dfe81b3d78e3494f",
+  "expect": "lm_understand-logs"
+ },
+ {
+  "id": "singh2026",
+  "group": "manual",
+  "authors": "Singh",
+  "title": "Weight-Space Programming from scratch on simple tasks",
+  "year": "2026",
+  "url": "https://csinva.io/weight-space-programming-autoresearch/analyze/toy_examples/report.html",
+  "expect": "Weight-Space Programming from scratch on simple tasks"
+ },
+ {
+  "id": "singhrepo2026",
+  "group": "manual",
+  "authors": "Singh",
+  "title": "weight-space-programming-autoresearch: code, logs and the weight-reading test",
+  "year": "2026",
+  "url": "https://github.com/csinva/weight-space-programming-autoresearch",
+  "expect": "weight-space-programming-autoresearch"
+ },
+ {
+  "id": "ozel2026",
+  "group": "manual",
+  "authors": "Özel",
+  "title": "An AI Just Performed Brain Surgery on Another AI",
+  "year": "2026",
+  "url": "https://medium.com/@mehmet.ozel2701/an-ai-just-performed-brain-surgery-on-another-ai-cbb412c61430",
+  "expect": "Brain Surgery"
+ },
+ {
+  "id": "young2019minatar",
+  "group": "manual",
+  "authors": "Young and Tian",
+  "title": "MinAtar: An Atari-Inspired Testbed for Thorough and Reproducible Reinforcement Learning Experiments",
+  "year": "2019",
+  "url": "https://arxiv.org/abs/1903.03176"
+ },
+ {
+  "id": "minatarrepo",
+  "group": "manual",
+  "authors": "Young and Tian",
+  "title": "MinAtar source code",
+  "year": "",
+  "url": "https://github.com/kenjyoung/MinAtar",
+  "expect": "MinAtar"
+ },
+ {
+  "id": "minatarpypi",
+  "group": "manual",
+  "authors": "Young and Tian",
+  "title": "MinAtar 1.0.15 package",
+  "year": "",
+  "url": "https://pypi.org/project/MinAtar/1.0.15/",
+  "check_url": "https://pypi.org/pypi/MinAtar/1.0.15/json",
+  "expect": "MinAtar"
+ },
+ {
+  "id": "schulman2017ppo",
+  "group": "manual",
+  "authors": "Schulman et al.",
+  "title": "Proximal Policy Optimization Algorithms",
+  "year": "2017",
+  "url": "https://arxiv.org/abs/1707.06347"
+ },
+ {
+  "id": "ho2020ddpm",
+  "group": "manual",
+  "authors": "Ho, Jain and Abbeel",
+  "title": "Denoising Diffusion Probabilistic Models",
+  "year": "2020",
+  "url": "https://arxiv.org/abs/2006.11239"
+ },
+ {
+  "id": "elhage2021framework",
+  "group": "manual",
+  "authors": "Elhage et al.",
+  "title": "A Mathematical Framework for Transformer Circuits",
+  "year": "2021",
+  "url": "https://transformer-circuits.pub/2021/framework/index.html",
+  "expect": "A Mathematical Framework for Transformer Circuits"
+ },
+ {
+  "id": "matthews2025kinetix",
+  "group": "manual",
+  "authors": "Matthews et al.",
+  "title": "Kinetix: Investigating the Training of General Agents through Open-Ended Physics-Based Control Tasks",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2410.23208"
+ },
+ {
+  "id": "hendrycks2021math",
+  "group": "manual",
+  "authors": "Hendrycks et al.",
+  "title": "Measuring Mathematical Problem Solving With the MATH Dataset",
+  "year": "2021",
+  "url": "https://arxiv.org/abs/2103.03874"
+ },
+ {
+  "id": "bowman2015snli",
+  "group": "manual",
+  "authors": "Bowman et al.",
+  "title": "A large annotated corpus for learning natural language inference",
+  "year": "2015",
+  "url": "https://arxiv.org/abs/1508.05326"
+ },
+ {
+  "id": "qwen",
+  "group": "manual",
+  "authors": "Qwen team",
+  "title": "Qwen3.5-0.8B model card",
+  "year": "2026",
+  "url": "https://huggingface.co/Qwen/Qwen3.5-0.8B",
+  "expect": "Qwen3.5-0.8B"
+ },
+ {
+  "id": "qwenedit",
+  "group": "manual",
+  "authors": "Takehi et al.",
+  "title": "Qwen3.5-0.8B with the Experiment 8 weight edit",
+  "year": "2026",
+  "url": "https://huggingface.co/RikiyaT/Qwen3.5-0.8B-weight-space-programming",
+  "expect": "Qwen3.5-0.8B-weight-space-programming"
+ },
+ {
+  "id": "gemma",
+  "group": "manual",
+  "authors": "Google",
+  "title": "Gemma 3 270M model card",
+  "year": "2025",
+  "url": "https://huggingface.co/google/gemma-3-270m",
+  "expect": "gemma-3-270m"
+ },
+ {
+  "id": "ste100",
+  "group": "manual",
+  "authors": "ASD",
+  "title": "ASD-STE100 Simplified Technical English",
+  "year": "",
+  "url": "https://www.asd-ste100.org/",
+  "expect": "ASD-STE100"
+ },
+ {
+  "id": "claudecode",
+  "group": "manual",
+  "authors": "Anthropic",
+  "title": "Claude Code documentation",
+  "year": "",
+  "url": "https://code.claude.com/docs/en/overview",
+  "expect": "Claude Code"
+ },
+ {
+  "id": "uv",
+  "group": "manual",
+  "authors": "Astral",
+  "title": "uv documentation",
+  "year": "",
+  "url": "https://docs.astral.sh/uv/",
+  "expect": "uv"
+ },
+ {
+  "id": "playwright",
+  "group": "manual",
+  "authors": "Microsoft",
+  "title": "Playwright documentation",
+  "year": "",
+  "url": "https://playwright.dev/",
+  "expect": "Playwright"
+ },
+ {
+  "id": "ccby",
+  "group": "manual",
+  "authors": "Creative Commons",
+  "title": "Attribution 4.0 International, legal code",
+  "year": "",
+  "url": "https://creativecommons.org/licenses/by/4.0/legalcode",
+  "expect": "Attribution 4.0 International"
+ },
+ {
+  "id": "gpl3",
+  "group": "manual",
+  "authors": "Free Software Foundation",
+  "title": "GNU General Public License, version 3",
+  "year": "2007",
+  "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "expect": "General Public License"
+ },
+ {
+  "id": "koyamada2023pgx",
+  "group": "post",
+  "authors": "Koyamada et al.",
+  "title": "Pgx: Hardware-Accelerated Parallel Game Simulators for Reinforcement Learning",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2303.17503"
+ },
+ {
+  "id": "olah2020zoom",
+  "group": "post",
+  "authors": "Olah et al.",
+  "title": "Zoom In: An Introduction to Circuits",
+  "year": "2020",
+  "url": "https://distill.pub/2020/circuits/zoom-in"
+ },
+ {
+  "id": "wang2022ioi",
+  "group": "post",
+  "authors": "Wang et al.",
+  "title": "Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 Small",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2211.00593"
+ },
+ {
+  "id": "bricken2023monosemanticity",
+  "group": "post",
+  "authors": "Bricken et al.",
+  "title": "Towards Monosemanticity: Decomposing Language Models With Dictionary Learning",
+  "year": "2023",
+  "url": "https://transformer-circuits.pub/2023/monosemantic-features/index.html"
+ },
+ {
+  "id": "cunningham2023sae",
+  "group": "post",
+  "authors": "Cunningham et al.",
+  "title": "Sparse Autoencoders Find Highly Interpretable Features in Language Models",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2309.08600"
+ },
+ {
+  "id": "ameisen2025circuit",
+  "group": "post",
+  "authors": "Ameisen et al.",
+  "title": "Circuit Tracing: Revealing Computational Graphs in Language Models",
+  "year": "2025",
+  "url": "https://transformer-circuits.pub/2025/attribution-graphs/methods.html"
+ },
+ {
+  "id": "weightwatcher",
+  "group": "post",
+  "authors": "Martin et al.",
+  "title": "Predicting trends in the quality of state-of-the-art neural networks without access to training or testing data",
+  "year": "2021",
+  "url": "https://www.nature.com/articles/s41467-021-24025-8"
+ },
+ {
+  "id": "meng2022rome",
+  "group": "post",
+  "authors": "Meng et al.",
+  "title": "Locating and Editing Factual Associations in GPT",
+  "year": "2022",
+  "url": "https://arxiv.org/abs/2202.05262"
+ },
+ {
+  "id": "bills2023explain",
+  "group": "post",
+  "authors": "Bills et al.",
+  "title": "Language models can explain neurons in language models",
+  "year": "2023",
+  "url": "https://openaipublic.blob.core.windows.net/neuron-explainer/paper/index.html"
+ },
+ {
+  "id": "nla2026",
+  "group": "post",
+  "authors": "Fraser-Taliente et al.",
+  "title": "Natural Language Autoencoders Produce Unsupervised Explanations of LLM Activations",
+  "year": "2026",
+  "url": "https://transformer-circuits.pub/2026/nla/index.html"
+ },
+ {
+  "id": "karvonen2025activationoracles",
+  "group": "post",
+  "authors": "Karvonen et al.",
+  "title": "Activation Oracles: Training and Evaluating LLMs as General-Purpose Activation Explainers",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2512.15674"
+ },
+ {
+  "id": "weightoracles",
+  "group": "post",
+  "authors": "Kabra et al.",
+  "title": "Weight Oracles: Reading Neural Network Weights with Language Models",
+  "year": "2026",
+  "url": "https://arxiv.org/abs/2610.07334"
+ },
+ {
+  "id": "goel2025dit",
+  "group": "post",
+  "authors": "Goel et al.",
+  "title": "Learning to Interpret Weight Differences in Language Models",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2510.05092"
+ },
+ {
+  "id": "neuronexplorer",
+  "group": "post",
+  "authors": "lyramakesmusic",
+  "title": "neuron-explorer: Steering-first neuron explorer for Qwen3.5-4B",
+  "year": "2026",
+  "url": "https://github.com/lyramakesmusic/neuron-explorer"
+ },
+ {
+  "id": "workspacebench",
+  "group": "post",
+  "authors": "Blank et al.",
+  "title": "WorkspaceBench: Evaluating Interpretability Methods for the Global Workspace",
+  "year": "2026",
+  "url": "https://www.lesswrong.com/posts/Zeg2JztbdhguL48uH/workspacebench-evaluating-interpretability-methods-for-the"
+ },
+ {
+  "id": "kingma2015adam",
+  "group": "post",
+  "authors": "Kingma and Ba",
+  "title": "Adam: A Method for Stochastic Optimization",
+  "year": "2015",
+  "url": "https://arxiv.org/abs/1412.6980"
+ },
+ {
+  "id": "jordan2024muon",
+  "group": "post",
+  "authors": "Jordan et al.",
+  "title": "Muon: An optimizer for hidden layers in neural networks",
+  "year": "2024",
+  "url": "https://kellerjordan.github.io/posts/muon/"
+ },
+ {
+  "id": "yang2024opro",
+  "group": "post",
+  "authors": "Yang et al.",
+  "title": "Large Language Models as Optimizers",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2309.03409"
+ },
+ {
+  "id": "karpathy2026autoresearch",
+  "group": "post",
+  "authors": "Karpathy",
+  "title": "autoresearch",
+  "year": "2026",
+  "url": "https://github.com/karpathy/autoresearch"
+ },
+ {
+  "id": "reactiveoptimizers",
+  "group": "post",
+  "authors": "Bai et al.",
+  "title": "Reactive Optimizers",
+  "year": "2026",
+  "url": "https://xingjianbai.com/reactive-optimizers/"
+ },
+ {
+  "id": "khattab2022dsp",
+  "group": "post",
+  "authors": "Khattab et al.",
+  "title": "Demonstrate-Search-Predict: Composing Retrieval and Language Models for Knowledge-Intensive NLP",
+  "year": "2022",
+  "url": "https://arxiv.org/abs/2212.14024"
+ },
+ {
+  "id": "lee2026metaharness",
+  "group": "post",
+  "authors": "Lee et al.",
+  "title": "Meta-Harness: End-to-End Optimization of Model Harnesses",
+  "year": "2026",
+  "url": "https://arxiv.org/abs/2603.28052"
+ },
+ {
+  "id": "khattab2023dspy",
+  "group": "post",
+  "authors": "Khattab et al.",
+  "title": "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2310.03714"
+ },
+ {
+  "id": "opsahlong2024mipro",
+  "group": "post",
+  "authors": "Opsahl-Ong et al.",
+  "title": "Optimizing Instructions and Demonstrations for Multi-Stage Language Model Programs",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2406.11695"
+ },
+ {
+  "id": "agrawal2025gepa",
+  "group": "post",
+  "authors": "Agrawal et al.",
+  "title": "GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning",
+  "year": "2026",
+  "url": "https://arxiv.org/abs/2507.19457"
+ },
+ {
+  "id": "peebles2022gpt",
+  "group": "post",
+  "authors": "Peebles et al.",
+  "title": "Learning to Learn with Generative Models of Neural Network Checkpoints",
+  "year": "2022",
+  "url": "https://arxiv.org/abs/2209.12892"
+ },
+ {
+  "id": "schurholt2022hyper",
+  "group": "post",
+  "authors": "Schürholt et al.",
+  "title": "Hyper-Representations as Generative Models: Sampling Unseen Neural Network Weights",
+  "year": "2022",
+  "url": "https://arxiv.org/abs/2209.14733"
+ },
+ {
+  "id": "wang2024pdiff",
+  "group": "post",
+  "authors": "Wang et al.",
+  "title": "Neural Network Diffusion",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2402.13144"
+ },
+ {
+  "id": "phang2023hypertuning",
+  "group": "post",
+  "authors": "Phang et al.",
+  "title": "HyperTuning: Toward Adapting Large Language Models without Back-propagation",
+  "year": "2023",
+  "url": "https://proceedings.mlr.press/v202/phang23a.html"
+ },
+ {
+  "id": "navon2023equivariant",
+  "group": "post",
+  "authors": "Navon et al.",
+  "title": "Equivariant Architectures for Learning in Deep Weight Spaces",
+  "year": "2023",
+  "url": "https://proceedings.mlr.press/v202/navon23a.html"
+ },
+ {
+  "id": "neurogen2025",
+  "group": "post",
+  "authors": "Wang et al.",
+  "title": "NeuroGen: Neural Network Parameter Generation via Large Language Models",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2505.12470"
+ },
+ {
+  "id": "adderboard",
+  "group": "post",
+  "authors": "Papailiopoulos",
+  "title": "AdderBoard: A Community Challenge for Tiny Arithmetic Transformers",
+  "year": "2026",
+  "url": "https://github.com/anadim/AdderBoard"
+ },
+ {
+  "id": "spall1992spsa",
+  "group": "post",
+  "authors": "Spall",
+  "title": "Multivariate stochastic approximation using a simultaneous perturbation gradient approximation",
+  "year": "1992",
+  "url": "https://doi.org/10.1109/9.119632",
+  "check_url": "https://api.crossref.org/works/10.1109/9.119632"
+ },
+ {
+  "id": "salimans2017es",
+  "group": "post",
+  "authors": "Salimans et al.",
+  "title": "Evolution Strategies as a Scalable Alternative to Reinforcement Learning",
+  "year": "2017",
+  "url": "https://arxiv.org/abs/1703.03864"
+ },
+ {
+  "id": "malladi2023mezo",
+  "group": "post",
+  "authors": "Malladi et al.",
+  "title": "Fine-Tuning Language Models with Just Forward Passes",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2305.17333"
+ },
+ {
+  "id": "qiu2026esllm",
+  "group": "post",
+  "authors": "Qiu et al.",
+  "title": "Evolution Strategies at Scale: LLM Fine-Tuning Beyond Reinforcement Learning",
+  "year": "2026",
+  "url": "https://arxiv.org/abs/2509.24372"
+ },
+ {
+  "id": "globis2023aozorabunko",
+  "group": "post",
+  "authors": "Globis University",
+  "title": "aozorabunko-clean: the Aozora Bunko collection of Japanese literature, cleaned and deduplicated",
+  "year": "2023",
+  "url": "https://huggingface.co/datasets/globis-university/aozorabunko-clean",
+  "expect": "aozorabunko-clean"
+ },
+ {
+  "id": "wikimedia2023wikipedia",
+  "group": "post",
+  "authors": "Wikimedia",
+  "title": "Wikipedia, English, dump of November 1, 2023",
+  "year": "2023",
+  "url": "https://huggingface.co/datasets/wikimedia/wikipedia",
+  "expect": "wikimedia/wikipedia"
+ },
+ {
+  "id": "pipis2025loop",
+  "group": "post",
+  "authors": "Pipis et al.",
+  "title": "Wait, Wait, Wait... Why Do Reasoning Models Loop?",
+  "year": "2025",
+  "url": "https://arxiv.org/abs/2512.12895"
+ },
+ {
+  "id": "arditi2024refusal",
+  "group": "post",
+  "authors": "Arditi et al.",
+  "title": "Refusal in Language Models Is Mediated by a Single Direction",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2406.11717"
+ },
+ {
+  "id": "karpathy2017",
+  "group": "post",
+  "authors": "Karpathy",
+  "title": "Software 2.0",
+  "year": "2017",
+  "url": "https://karpathy.medium.com/software-2-0-a64152b37c35",
+  "expect": "Software 2.0"
+ },
+ {
+  "id": "schlag2021",
+  "group": "post",
+  "authors": "Schlag, Irie and Schmidhuber",
+  "title": "Linear Transformers Are Secretly Fast Weight Programmers",
+  "year": "2021",
+  "url": "https://arxiv.org/abs/2102.11174"
+ },
+ {
+  "id": "akhaliq2026demo",
+  "group": "post",
+  "authors": "Khaliq",
+  "title": "Live demo of the Experiment 8 edit",
+  "year": "2026",
+  "url": "https://huggingface.co/spaces/akhaliq/weight-space-programming-demo",
+  "expect": "weight-space-programming-demo"
+ },
+ {
+  "id": "geva2021",
+  "group": "report",
+  "authors": "Geva et al.",
+  "title": "Transformer Feed-Forward Layers Are Key-Value Memories",
+  "year": "2021",
+  "url": "https://arxiv.org/abs/2012.14913"
+ },
+ {
+  "id": "weiss2021",
+  "group": "report",
+  "authors": "Weiss, Goldberg and Yahav",
+  "title": "Thinking Like Transformers",
+  "year": "2021",
+  "url": "https://arxiv.org/abs/2106.06981"
+ },
+ {
+  "id": "lindner2023",
+  "group": "report",
+  "authors": "Lindner et al.",
+  "title": "Tracr: Compiled Transformers as a Laboratory for Interpretability",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2301.05062"
+ },
+ {
+  "id": "friedman2023",
+  "group": "report",
+  "authors": "Friedman, Wettig and Chen",
+  "title": "Learning Transformer Programs",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2306.01128"
+ },
+ {
+  "id": "nanda2023",
+  "group": "report",
+  "authors": "Nanda et al.",
+  "title": "Progress measures for grokking via mechanistic interpretability",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2301.05217"
+ },
+ {
+  "id": "quirke2023",
+  "group": "report",
+  "authors": "Quirke and Barez",
+  "title": "Understanding Addition in Transformers",
+  "year": "2023",
+  "url": "https://arxiv.org/abs/2310.13121"
+ },
+ {
+  "id": "guidelabs2026",
+  "group": "report",
+  "authors": "Guide Labs",
+  "title": "Scaling Inherently Interpretable Language Models",
+  "year": "2026",
+  "url": "https://www.guidelabs.ai/papers/scaling-inherently-interpretable-language-models.pdf",
+  "read_by_hand": "Title and Guide Labs authorship read on page 1, 2026-11-05"
+ },
+ {
+  "id": "benara2024",
+  "group": "report",
+  "authors": "Benara, Singh et al.",
+  "title": "Crafting Interpretable Embeddings by Asking LLMs Questions",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2405.16714"
+ },
+ {
+  "id": "feng2026",
+  "group": "report",
+  "authors": "Feng et al.",
+  "title": "Human-AI Co-design for Clinical Prediction Models",
+  "year": "2026",
+  "url": "https://www.nature.com/articles/s41746-026-02838-5"
+ }
+]

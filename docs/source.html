@@ -1,0 +1,526 @@
+<title>Weight-Space Programming Manual</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap">
+<style>
+  /* Layout: one column technical manual with hierarchical section numbers, because procedures and tables refer to them. */
+  :root {
+    --bg: #f7f8f7; --surface: #ffffff; --ink: #16201d; --muted: #52605b; --line: #d5dcd8; --accent: #0b6e56;
+    --warn-bg: #fdf3e3; --warn-line: #b86e00;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --code-bg: #eef1ef;
+    --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121715; --surface: #1a211e; --ink: #e8edea; --muted: #a4b0ab; --line: #333d39; --accent: #4cc9a4;
+      --warn-bg: #33270f; --warn-line: #e0a23b;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --code-bg: #232b28; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121715; --surface: #1a211e; --ink: #e8edea; --muted: #a4b0ab; --line: #333d39; --accent: #4cc9a4;
+    --warn-bg: #33270f; --warn-line: #e0a23b;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --code-bg: #232b28; color-scheme: dark;
+  }
+  body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
+  main { max-width: 820px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+  main > * { min-width: 0; }
+  h1 { font-size: 32px; line-height: 1.15; margin: 0; text-wrap: balance; }
+  h2 { font-size: 22px; line-height: 1.25; margin: 30px 0 0; padding-top: 14px; border-top: 2px solid var(--ink); text-wrap: balance; }
+  h3 { font-size: 17px; line-height: 1.3; margin: 16px 0 0; }
+  p, ul, ol { margin: 0; max-width: 68ch; }
+  ul, ol { padding-left: 22px; display: grid; gap: 4px; }
+  a { color: var(--accent); }
+  code, pre, kbd { font-family: var(--font-mono); font-size: 0.88em; }
+  code { background: var(--code-bg); padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+  pre { background: var(--code-bg); padding: 12px; margin: 0; overflow-x: auto; border-radius: 4px; line-height: 1.45; }
+  pre.tall { max-height: 460px; overflow-y: auto; }
+  .lede { color: var(--muted); max-width: 68ch; }
+  .note, .warn { padding: 10px 12px; border-left: 4px solid var(--line); background: var(--surface); max-width: 68ch; }
+  .warn { border-left-color: var(--warn-line); background: var(--warn-bg); }
+  .warn b:first-child, .note b:first-child { display: block; letter-spacing: 0.04em; font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; background: var(--surface); }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { font-weight: 600; background: var(--code-bg); }
+  .n { text-align: right; font-variant-numeric: tabular-nums; }
+  figure { margin: 0; display: grid; gap: 6px; min-width: 0; }
+  figcaption { color: var(--muted); font-size: 14px; max-width: 68ch; }
+  img.shot { width: 100%; max-width: 680px; height: auto; border: 1px solid var(--line); border-radius: 4px; display: block; }
+  img.phone { width: 100%; max-width: 280px; height: auto; border: 1px solid var(--line); border-radius: 4px; display: block; }
+  .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 10px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 6px; }
+  svg { display: block; width: 100%; height: auto; }
+  svg.wide { min-width: 560px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+  svg text { font-family: var(--font-body); fill: var(--ink); }
+  svg .ttl { font-size: 13px; font-weight: 600; }
+  svg .lab { font-size: 11.5px; fill: var(--muted); }
+  svg .val { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  svg polyline { fill: none; stroke-width: 1.6; stroke-linejoin: round; }
+  svg .s1s { stroke: var(--s1); } svg .s2s { stroke: var(--s2); } svg .s3s { stroke: var(--s3); }
+  svg .s1f { fill: var(--s1); } svg .s2f { fill: var(--s2); } svg .s3f { fill: var(--s3); }
+  svg .mark { stroke: var(--surface); stroke-width: 1.5; }
+  svg .axis, svg .grid { stroke: var(--line); stroke-width: 1; }
+  svg .box { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; }
+  svg .box.accent { stroke: var(--accent); stroke-width: 2.5; }
+  svg .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+  svg .head { fill: var(--muted); }
+  a.cite { text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:target { outline: 2px solid var(--accent); outline-offset: -2px; }
+  nav ol { columns: 2; column-gap: 28px; display: block; }
+  @media (max-width: 560px) { nav ol { columns: 1; } h1 { font-size: 27px; } }
+</style>
+
+<main>
+<header style="display:grid;gap:8px">
+  <h1>Weight-Space Programming Manual</h1>
+  <p class="lede">This manual describes the project in <code>weight-space-programming</code>. The project tests one claim: an LLM can read and write neural network weights without training. The text follows the spirit of ASD-STE100 {{cite:ste100}}. Document date: 5 November 2026.</p>
+</header>
+
+<section style="display:grid;gap:10px">
+  <h2 style="margin-top:6px">Summary of results</h2>
+  <ul>
+    <li><b>Read test.</b> Claude named Breakout from the raw weights, with confidence {{EXP1_CONF}}%. The sample is one network.</li>
+    <li><b>Read control.</b> The rows of W1 were shuffled. Claude found the shuffle, reduced its confidence to {{CONTROL_CONF}}%, and named Breakout again. The control did not remove all the information.</li>
+    <li><b>Write test.</b> Claude wrote a Breakout network in one reply. The network scored {{EXP5_MEAN}} ± {{EXP5_SE}}. The published scores are 25.3 for PPO at 500M steps and 517.4 for GPT-6 Astra.</li>
+    <li><b>Three Pads.</b> Claude wrote three networks in three separate replies. Each network landed in 3,000 of 3,000 flights, with a fixed pad and with a pad change.</li>
+    <li><b>Limit.</b> Three Pads is an easy control task for Claude. No network reads the fuel input. All three networks failed when the start fuel was low.</li>
+  </ul>
+</section>
+
+<nav aria-label="Sections">
+  <ol>
+    <li><a href="#terms">Terms</a></li>
+    <li><a href="#sources">Source documents</a></li>
+    <li><a href="#files">Project files and data flow</a></li>
+    <li><a href="#isolation">Isolation of the LLM</a></li>
+    <li><a href="#exp1">Experiment 1: read weights</a></li>
+    <li><a href="#exp5">Experiment 5: write weights</a></li>
+    <li><a href="#game">Three Pads: the game</a></li>
+    <li><a href="#results">Three Pads: results</a></li>
+    <li><a href="#meaning">What the results show</a></li>
+    <li><a href="#procedures">Procedures</a></li>
+    <li><a href="#faults">Fault isolation</a></li>
+    <li><a href="#limits">Limits and next work</a></li>
+    <li><a href="#licences">Licences and attribution</a></li>
+    <li><a href="#references">References</a></li>
+  </ol>
+</nav>
+
+<section id="terms" style="display:grid;gap:10px">
+  <h2>1. Terms</h2>
+  <p>This manual uses each term with one meaning only.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Weight</td><td>One number in a neural network. This manual also includes biases in this term.</td></tr>
+      <tr><td>Network</td><td>The small neural network that an LLM reads or writes.</td></tr>
+      <tr><td>LLM</td><td>The large language model that reads or writes the network. In this project, the LLM is Claude Opus 5.5.</td></tr>
+      <tr><td>Weight-Space Programming</td><td>An LLM reads and writes the weights directly. No optimizer and no gradient descent operate on those weights.</td></tr>
+      <tr><td>Reply</td><td>One complete answer from the LLM to one prompt.</td></tr>
+      <tr><td>Tool-free</td><td>The LLM has no tools. It cannot run code, read files or search the web.</td></tr>
+      <tr><td>Edits block</td><td>The part of a reply that sets the weights. Section 7.4 gives the format.</td></tr>
+      <tr><td>Pilot</td><td>The source of the actions in Three Pads: a network, a plain program, a random generator, or a person.</td></tr>
+      <tr><td>Pad</td><td>One of the three landing areas in Three Pads.</td></tr>
+      <tr><td>Target pad</td><td>The pad where the pilot must land.</td></tr>
+      <tr><td>Flight</td><td>One run of Three Pads, from the start to an outcome.</td></tr>
+      <tr><td>Episode</td><td>One run of a MinAtar game, from the start to the end.</td></tr>
+      <tr><td>Control</td><td>A test that removes the thing under test, to show if a result depends on it.</td></tr>
+      <tr><td>SE</td><td>Standard error of a mean.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="sources" style="display:grid;gap:10px">
+  <h2>2. Source documents</h2>
+  <h3>2.1 The main post</h3>
+  <p>Takehi, Teoh, Zhang and Khattab (MIT CSAIL) published <a href="https://rikiyat.github.io/blog/weight-space-programming/">Sparks of Weight-Space Programming</a> {{cite:takehi2026}} on 2 November 2026. The post is a blog post. It did not go through peer review. The LLM in the post is GPT-6 Astra. The authors released the logs of all experiments {{cite:logs2026}}.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Exp</th><th>Task</th><th>Network</th><th>Tools</th><th>Published result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Name the game from weights</td><td>17,253 weights, PPO {{cite:schulman2017ppo}}</td><td>None</td><td>4 of 4 correct</td></tr>
+      <tr><td>2</td><td>Name the diffusion model's shape</td><td>23,824 weights, DDPM {{cite:ho2020ddpm}}</td><td>None</td><td>3 of 3 correct. Astra drew outlines. The real shapes are filled.</td></tr>
+      <tr><td>3</td><td>Name the language from middle blocks</td><td>7.16M weights</td><td>Python, no forward pass</td><td>3 of 3 correct in both attempts. All copying heads found, by a method from {{cite:elhage2021framework}}.</td></tr>
+      <tr><td>4</td><td>Fix a failed car policy in Kinetix {{cite:matthews2025kinetix}}</td><td>171,664 weights</td><td>None</td><td>0 of 256 to 1,024 of 1,024. Edit changed 3.5% of the weights.</td></tr>
+      <tr><td>5</td><td>Write MinAtar {{cite:young2019minatar}} networks</td><td>20,486 weights</td><td>None</td><td>Breakout 517.4, Seaquest 53.1, Asterix 53.2</td></tr>
+      <tr><td>6</td><td>Write a Go network</td><td>1,480,274 weights</td><td>Python, 0 to 50 forward passes</td><td>With 50 forward passes, beat an equal-size PPO network.</td></tr>
+      <tr><td>7</td><td>Find the sycophantic model</td><td>Gemma 3 270M {{cite:gemma}}</td><td>Python, attention tool</td><td>0 of 4 from weights only. 3 of 3 with the attention tool.</td></tr>
+      <tr><td>8</td><td>Improve maths in Qwen3.5-0.8B</td><td>0.8B weights {{cite:qwen}}</td><td>Python, 10 to 50 forward passes</td><td>MATH-500 {{cite:hendrycks2021math}} from 7.9% to 48.1%. Edit changed 0.016% of the weights. The edited network is public {{cite:qwenedit}}.</td></tr>
+      <tr><td>Follow-up</td><td>Improve maths in Gemma 3 270M</td><td>Gemma 3 270M</td><td>Python</td><td>6.8% to at most 7.7%. The authors report no clear gain.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The authors say that the Experiment 8 edit removes thinking loops. The edit does not add a new ability. The follow-up supports this: Gemma rarely loops, and the same method did not help Gemma.</p>
+  <h3>2.2 The second report</h3>
+  <p>Chandan Singh published a report {{cite:singh2026}} and code {{cite:singhrepo2026}} on the same topic. Claude operated as a coding agent with code execution. Three findings affect this project:</p>
+  <ul>
+    <li>Claude wrote 959 programs for 13 tasks. All ten algorithmic tasks reached 100% within three attempts.</li>
+    <li>On language tasks, the agent could read the data for evaluation. The agent then fitted that data. This made the SNLI {{cite:bowman2015snli}} score invalid. This project prevents that fault with the isolation in section 4.</li>
+    <li>In a test with a baseline, reading Qwen weights improved edit predictions by a correlation of only +0.06 ± 0.02. This project therefore includes a control.</li>
+  </ul>
+  <h3>2.3 The Medium article</h3>
+  <p>The article by Mehmet Özel {{cite:ozel2026}} is for paying members. The visible part repeats the Experiment 8 numbers of the main post. That part adds no new data. This project did not use it. The remaining text was not read.</p>
+</section>
+
+<section id="files" style="display:grid;gap:10px">
+  <h2>3. Project files and data flow</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Path</th><th>Function</th></tr></thead>
+    <tbody>
+      <tr><td><code>wsp.py</code></td><td>Command line tool: fetch data, call the LLM, parse the edits block, score, verify, export.</td></tr>
+      <tr><td><code>lander/sim.js</code></td><td>Game rules of Three Pads. The browser, the scorer and the prompt all use this one file.</td></tr>
+      <tr><td><code>lander/policy.js</code></td><td>Network forward pass, plain program, random pilot and scoring. The LLM does not see this file.</td></tr>
+      <tr><td><code>lander/prompt.md</code></td><td>Prompt template. <code>wsp.py</code> inserts <code>sim.js</code> into it.</td></tr>
+      <tr><td><code>lander/eval.js</code></td><td>Scores one pilot on 3,000 flights, for each of the two tests.</td></tr>
+      <tr><td><code>lander/stress.js</code></td><td>Scores pilots from start states that the prompt does not describe.</td></tr>
+      <tr><td><code>lander/index.html</code></td><td>The page: vanilla JavaScript, no build step and no server.</td></tr>
+      <tr><td><code>lander/networks.js</code></td><td>Generated file. It gives the page the networks and the scores.</td></tr>
+      <tr><td><code>lander/test.js</code>, <code>tests/test_wsp.py</code>, <code>tests/e2e_lander.py</code></td><td>Game tests, parser and scorer tests, and browser test.</td></tr>
+      <tr><td><code>docs/source.html</code>, <code>docs/build.js</code>, <code>docs/capture.py</code></td><td>Source of this manual. <code>build.js</code> calculates all tables and figures from the run files.</td></tr>
+      <tr><td><code>docs/references.json</code>, <code>docs/check_refs.py</code>, <code>docs/references-check.json</code></td><td>The reference list, the check tool and the last check result. See section 14.</td></tr>
+      <tr><td><code>data/</code></td><td>Files fetched from the authors' logs at commit <code>4d09ba6d</code>. Git ignores this folder.</td></tr>
+      <tr><td><code>results/</code></td><td>One folder for each LLM call: prompt, filtered events, reply, audit and score.</td></tr>
+    </tbody>
+  </table></div>
+  <figure>
+    {{PIPELINE}}
+    <figcaption>Figure 1. Data flow for Three Pads. The LLM receives the game rules and the task. It does not receive the scorer or the seeds.</figcaption>
+  </figure>
+</section>
+
+<section id="isolation" style="display:grid;gap:10px">
+  <h2>4. Isolation of the LLM</h2>
+  <p>An LLM with access to answers or evaluation data can give a false result. The tool calls Claude Code {{cite:claudecode}} and makes each call as follows:</p>
+  <ul>
+    <li>The call runs in a new, empty, temporary folder. The folder contains no answers.</li>
+    <li><code>--tools ""</code> removes all tools.</li>
+    <li><code>--strict-mcp-config</code> removes all MCP servers.</li>
+    <li><code>--setting-sources ""</code> removes user and project settings, including hooks.</li>
+    <li><code>CLAUDE_CODE_DISABLE_CLAUDE_MDS=1</code> and <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code> remove instruction files and memory.</li>
+    <li><code>--system-prompt</code> sets one neutral sentence: "Answer the user's request."</li>
+  </ul>
+  <p>After each call, the tool reads the raw event stream. The run is usable only if the stream shows no offered tools, no MCP servers and no tool calls. The <code>score</code> command stops if the run fails this audit. All six live runs passed the audit.</p>
+  <p>The tool saves a filtered copy of the event stream. The filter keeps only listed fields: model, tools, reply text, reasoning text, token counts and outcome. It removes machine paths, session and request IDs, account limits and reasoning signatures. The audit of a filtered copy gives the same result as the audit of the full stream.</p>
+  <div class="note"><b>NOTE</b> A probe with a separate question showed what remains in the context. Claude Code adds a short environment block, the date and the account email address. None of these describe games or weights. The probe found no CLAUDE.md, memory or plugin text.</div>
+  <h3>4.1 Calls and cost</h3>
+  {{COSTS}}
+  <p>Total cost figure: {{TOTAL_COST}} USD. The CLI reports this figure. These calls used the Claude login, not an API key. The figure can differ from the real charge.</p>
+</section>
+
+<section id="exp1" style="display:grid;gap:10px">
+  <h2>5. Experiment 1: read weights</h2>
+  <h3>5.1 Method</h3>
+  <p>The tool sends the authors' exact prompt for their Breakout network. The prompt holds 17,253 weights as text, to 3 decimal places. The prompt does not name the game. The tool uses the same reasoning effort as the authors: <code>high</code>.</p>
+  <p>The control uses the same prompt, with the 500 rows of W1 in random order. Each row keeps its values. The prompt still says that row <i>i</i> belongs to input <i>i</i>. That statement is now false.</p>
+  <h3>5.2 Results</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Test</th><th>Game line in the reply</th><th class="n">Confidence</th></tr></thead>
+    <tbody>
+      <tr><td>Authors' prompt</td><td>{{EXP1_LINE}}</td><td class="n">{{EXP1_CONF}}%</td></tr>
+      <tr><td>W1 rows shuffled</td><td>{{CONTROL_LINE}}</td><td class="n">{{CONTROL_CONF}}%</td></tr>
+    </tbody>
+  </table></div>
+  <p>The control result was not the expected result. The expected result was a false, confident answer. In the actual reply, Claude wrote that the rows "look scrambled by a fixed permutation". Claude then counted the row types and used those counts as evidence.</p>
+  <p>The table compares Claude's counts with values measured from the weights. Claude had no calculator.</p>
+  {{COUNTS}}
+  <h3>5.3 Interpretation</h3>
+  <ul>
+    <li>The counts are near the measured values. The reply is therefore not a made-up story.</li>
+    <li>Shuffling rows does not remove the row values or the output layer. A stronger control must remove those too.</li>
+    <li>Breakout is a well-known game, so its prior chance is high. This project did not measure that prior chance.</li>
+    <li>One network and one control are a small sample.</li>
+  </ul>
+</section>
+
+<section id="exp5" style="display:grid;gap:10px">
+  <h2>6. Experiment 5: write weights</h2>
+  <h3>6.1 Offline proof of the scorer</h3>
+  <p>A wrong parser or scorer gives wrong conclusions. The <code>verify</code> command therefore tests the tool on the authors' data, with no LLM call. It does these checks:</p>
+  <ul>
+    <li>It reads the 7 saved replies of Experiments 1 and 2. All guesses and all confidence values agree with the authors' scores.</li>
+    <li>It parses the 3 saved replies of Experiment 5. All weights are exactly equal to the authors' <code>hand.npz</code> files.</li>
+    <li>It plays each saved network for 1,000 episodes, on MinAtar {{cite:minatarrepo}} version 1.0.15 {{cite:minatarpypi}}.</li>
+  </ul>
+  {{VERIFY}}
+  <p>All differences are less than 2 SE. The test limit is 3 SE. The project does not use the authors' seeds, so exact scores cannot agree.</p>
+  <h3>6.2 Live result</h3>
+  <p>Claude received the authors' exact Breakout prompt, with reasoning effort <code>xhigh</code>. The tool read {{EXP5_APPLIED}} of {{EXP5_STATEMENTS}} statements. The network has {{EXP5_NONZERO}} nonzero weights of 20,486. Its mean is {{EXP5_MEAN}} ± {{EXP5_SE}} over 1,000 episodes, and its highest score is {{EXP5_MAX}}.</p>
+  <figure>
+    {{BREAKOUT}}
+    <figcaption>Figure 2. Mean Breakout score. Higher is better. An episode stops at 10,000 steps. Each network comes from one reply, so these values do not show the spread between replies.</figcaption>
+  </figure>
+  <p>Claude's network scored more than ten times the published PPO values, and about half of Astra's score. PPO is a low baseline here, because the network is a small MLP. This project did not test a plain program on Breakout.</p>
+</section>
+
+<section id="game" style="display:grid;gap:10px">
+  <h2>7. Three Pads: the game</h2>
+  <p>Three Pads is an original landing game for this project. It uses no art, no levels and no name from an existing game. A craft falls under gravity. Three pads are on flat ground. The pilot must land slowly on the target pad.</p>
+  <figure>
+    <img class="shot" src="{{IMG_FLIGHT}}" alt="The Three Pads page. A network flies the craft toward pad 3. An engine flame shows beside the craft.">
+    <figcaption>Figure 3. The page during a flight. The pilot is Claude reply B. The target pad is pad 3. The flame shows which engine fires.</figcaption>
+  </figure>
+  <h3>7.1 Rules</h3>
+  <p>Each tick, the pilot selects one action. There are four actions: <code>none</code>, <code>thrust</code>, <code>left</code> and <code>right</code>. There is a 10% chance that the game repeats the previous action. This is the same "sticky action" rule as in MinAtar.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Constant</th><th class="n">Value</th><th>Unit or effect</th></tr></thead>
+    <tbody>
+      <tr><td>World width</td><td class="n">100</td><td>x from 0 to 100</td></tr>
+      <tr><td>Start height</td><td class="n">50 to 58</td><td>y, random</td></tr>
+      <tr><td>Ceiling</td><td class="n">80</td><td>y above this: outcome <code>lost</code></td></tr>
+      <tr><td>Pad centres</td><td class="n">20, 50, 80</td><td>x</td></tr>
+      <tr><td>Pad half width</td><td class="n">4</td><td>x</td></tr>
+      <tr><td>Gravity</td><td class="n">0.01</td><td>down, per tick, per tick</td></tr>
+      <tr><td>Main thrust</td><td class="n">0.025</td><td>up, per tick, per tick</td></tr>
+      <tr><td>Side thrust</td><td class="n">0.008</td><td>sideways, per tick, per tick</td></tr>
+      <tr><td>Start fuel</td><td class="n">300</td><td>units</td></tr>
+      <tr><td>Fuel use, main engine</td><td class="n">1</td><td>units per tick</td></tr>
+      <tr><td>Fuel use, side engine</td><td class="n">0.5</td><td>units per tick</td></tr>
+      <tr><td>Safe speed at touchdown</td><td class="n">0.1 and 0.25</td><td>|vx| and |vy|</td></tr>
+      <tr><td>Time limit</td><td class="n">1,000</td><td>ticks</td></tr>
+    </tbody>
+  </table></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Outcome</th><th>Condition</th></tr></thead>
+    <tbody>
+      <tr><td><code>landed</code></td><td>Touchdown on the target pad, at a safe speed. This is the only success.</td></tr>
+      <tr><td><code>wrong_pad</code></td><td>Touchdown on a different pad, at a safe speed.</td></tr>
+      <tr><td><code>crashed</code></td><td>Touchdown on a pad, too fast.</td></tr>
+      <tr><td><code>off_pad</code></td><td>Touchdown outside all pads.</td></tr>
+      <tr><td><code>lost</code></td><td>The craft leaves the sides or passes the ceiling.</td></tr>
+      <tr><td><code>timeout</code></td><td>The time limit ends the flight.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The complete source of the rules is below. The LLM received this exact text.</p>
+  <pre class="tall"><code>{{SOURCE_SIM}}</code></pre>
+  <h3>7.2 State</h3>
+  <p>The pilot sees 8 numbers. Inputs 5, 6 and 7 tell which pad is the target pad. The target pad can change during a flight. The network must then change its course.</p>
+  <h3>7.3 Network</h3>
+  <p>The network is an MLP with 8 inputs, two hidden layers of 16 units, and 4 outputs. It has 484 weights. The activation function is tanh. The action is sampled from the softmax of the outputs.</p>
+  <pre><code>h1     = tanh(x  @ W1 + b1)    W1: 8 x 16    b1: 16
+h2     = tanh(h1 @ W2 + b2)    W2: 16 x 16   b2: 16
+logits =      h2 @ W3 + b3     W3: 16 x 4    b3: 4</code></pre>
+  <h3>7.4 Prompt</h3>
+  <p>The prompt follows the authors' Experiment 5 prompt. It has the task, the rules source, the input layout, the network, the score method and the format of the edits block. All weights start at 0. The LLM sets only the weights that it needs. It gets no feedback.</p>
+  <pre><code>W1[2, 0] = 2.5                     # one entry
+W1[0:6, 3] = [1, 0, -1, 0, 2, 0]   # values along a range
+b1[0:4] = -1                       # fill a range
+W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
+  <div class="warn"><b>WARNING</b> The reply is untrusted text. The parser reads numbers with <code>ast.literal_eval</code>. It does not run the reply as code. A test confirms that a reply with code cannot run that code.</div>
+  <h3>7.5 Score method</h3>
+  <ul>
+    <li><b>Fixed pad test.</b> 3,000 flights. Each pad is the target pad in one third of the flights.</li>
+    <li><b>Pad change test.</b> 3,000 flights. The target pad changes once, at a tick from 30 to 120.</li>
+    <li><b>Seeds.</b> The seeds start at 1,000,000. The LLM does not see them.</li>
+    <li><b>Baselines.</b> The random pilot shows the lower limit. The plain program shows what simple code can do. The plain program was written once and was not tuned.</li>
+  </ul>
+  <h3>7.6 The page</h3>
+  <p>The page is one HTML file with two small scripts. It needs no server. A person can fly the craft or select a network. The page shows the 8 inputs, the chance of each action and all the weights in real time.</p>
+  <figure>
+    <img class="phone" src="{{IMG_PHONE}}" alt="The Three Pads page at phone width, with the controls below the game view.">
+    <figcaption>Figure 4. The page at phone width. The three engine buttons operate by touch.</figcaption>
+  </figure>
+</section>
+
+<section id="results" style="display:grid;gap:10px">
+  <h2>8. Three Pads: results</h2>
+  <h3>8.1 Scores</h3>
+  <p>The tool sent the same prompt three times. Each reply came from a new conversation. Each reply is one attempt, and the project made no other attempts.</p>
+  {{RESULTS}}
+  <p>The values for fuel and ticks are means over the flights that landed.</p>
+  {{OUTCOMES}}
+  <p>The plain program lost 18% in the pad change test. In all these crashes, the craft ran out of fuel. Section 8.5 gives more data about fuel.</p>
+  <h3>8.2 The replies</h3>
+  {{REPLIES}}
+  <p>The three replies use the same design. Each reply calculates a desired speed for each axis. It then fires the engine that reduces the speed error. Each network holds its height until the craft is over the target pad. This prevents a touchdown outside the pad. The holding height differs: the replies state about 8, 12 and 20.</p>
+  <p>The networks use few weights. W1 has one row for each input, and row 4 is the fuel input. In all three networks, row 4 is all zeros. No network uses the fuel value.</p>
+  <figure>
+    <img class="shot" src="{{IMG_WEIGHTS}}" alt="Three heat maps of the weights of reply B. Most cells are blank, and a few cells at the top left are colored.">
+    <figcaption>Figure 5. All the weights of reply B. Orange is positive, teal is negative and blank is zero. The scale is by matrix. Only 30 of 484 weights are not zero.</figcaption>
+  </figure>
+  <h3>8.3 Flight paths</h3>
+  <figure>
+    {{FLIGHTS}}
+    <figcaption>Figure 6. Nine real flights in each panel, from seeds outside the score test. The line color shows the final target pad. Move the pointer over a line for its tick and fuel. The flat parts of each path are the holding heights. In the last panel, the flights change direction after the dot. {{FLIGHTS_NOTE}}</figcaption>
+  </figure>
+  <h3>8.4 One forward pass of reply B</h3>
+  <p>This example shows one real calculation. The craft is at x = 30, y = 40. It moves at vx = 0.1, vy = -0.2. Fuel is 200. The target pad is pad 3, at x = 80.</p>
+  {{WORKED_INPUTS}}
+  <p>The hidden layers calculate these values. The values for all other units are 0.</p>
+  <pre><code>{{WORKED_H1}}
+
+{{WORKED_H2}}</code></pre>
+  {{WORKED_OUTPUTS}}
+  <p>Reply B uses unit <code>h1[3]</code> to calculate a desired vertical speed of about -0.095. The craft falls at -0.2, which is too fast. Therefore <code>thrust</code> has the highest chance. Reply B also calculates a desired horizontal speed of about 0.35. The craft moves at 0.1, which is too slow. Therefore <code>right</code> has a higher chance than <code>left</code>. The right engine fires when the fall speed is correct.</p>
+  <p>The complete edits block of reply B is below. The comments are Claude's own text.</p>
+  <pre class="tall"><code>{{REPLY_B_EDITS}}</code></pre>
+  <h3>8.5 Stress test</h3>
+  <p>A score of 100% can show an easy task. The stress test therefore changes the start state. It does not change the rules. The prompt does not describe these start states. Each value is from 3,000 flights, on seeds not used in section 8.1.</p>
+  {{STRESS}}
+  <ul>
+    <li><b>Low fuel.</b> All pilots lose most landings at fuel 100 or less. No pilot reads the fuel value, including the plain program. At fuel 150, replies A and C land more often than the plain program. At fuel 100 and 60, the plain program lands more often. This project did not find the cause of this change.</li>
+    <li><b>High start speed.</b> All pilots lose a similar share of landings. Most failures have the outcome <code>lost</code>: the craft leaves the world before the pilot can stop it.</li>
+    <li><b>Start at the edge.</b> All pilots land in 80.5% to 82.8% of flights. Most failures have the outcome <code>lost</code>.</li>
+    <li><b>Low start.</b> Most pilots stay near 100%. Reply B falls to 98.7% at y = 8.</li>
+  </ul>
+</section>
+
+<section id="meaning" style="display:grid;gap:10px">
+  <h2>9. What the results show</h2>
+  <h3>9.1 The results support these statements</h3>
+  <ul>
+    <li>Claude Opus 5.5 can write working network weights from source code, with no tools, no feedback and no training. This occurred in 4 of 4 write replies.</li>
+    <li>The written networks work on seeds that Claude did not see.</li>
+    <li>On a small network, Claude can read real structure from the numbers. Its counts in section 5.2 agree with measured values.</li>
+    <li>The Three Pads result is repeatable: three of three replies landed in all flights.</li>
+  </ul>
+  <h3>9.2 The results do not support these statements</h3>
+  <ul>
+    <li>They do not show that Claude can write networks for hard tasks. Three Pads has a direct 8-number state and a known control method.</li>
+    <li>They do not show that this method is better than a program. The networks contain a control program in weight form. The plain program lands more often at fuel 100 and 60.</li>
+    <li>They do not show that Claude can read large models. The largest network in this project has 20,486 weights.</li>
+    <li>They do not measure Claude against Astra in general. The comparison is one reply on one game.</li>
+    <li>They do not give a full view of the read skill. The project ran one network and one control.</li>
+  </ul>
+</section>
+
+<section id="procedures" style="display:grid;gap:10px">
+  <h2>10. Procedures</h2>
+  <p>Do all procedures in the project folder. The requirements are <code>uv</code> {{cite:uv}}, Node, and a Claude login for LLM calls. The browser test uses Playwright {{cite:playwright}}, which <code>uv sync</code> installs at a fixed version. The project was tested on Node 26 and Python 3.13.</p>
+  <h3>10.1 Install the project</h3>
+  <ol>
+    <li>Run <code>uv sync</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py fetch</code>.</li>
+    <li>Run <code>.venv/bin/playwright install chromium</code>. Only the browser test and the screenshots need this.</li>
+  </ol>
+  <h3>10.2 Fly the craft</h3>
+  <ol>
+    <li>Open <code>lander/index.html</code> in a browser.</li>
+    <li>Set the pilot to <b>You</b>.</li>
+    <li>Press <kbd>1</kbd>, <kbd>2</kbd> or <kbd>3</kbd> to select the target pad.</li>
+    <li>Press the up arrow to fire the main engine.</li>
+    <li>Press the left arrow or the right arrow to move the craft.</li>
+    <li>Reduce speed until the page shows <b>Touchdown speed: safe</b>.</li>
+    <li>Touch down on the green pad.</li>
+    <li>Press <kbd>R</kbd> to start a new flight.</li>
+  </ol>
+  <h3>10.3 Watch a network</h3>
+  <ol>
+    <li>Set the pilot to <b>Claude reply A</b>.</li>
+    <li>Watch the flight.</li>
+    <li>Press <kbd>3</kbd> during the flight to change the target pad.</li>
+    <li>Watch the craft change its course.</li>
+  </ol>
+  <div class="note"><b>NOTE</b> An engine control changes the pilot to <b>You</b>. To return to the network, set the pilot again.</div>
+  <h3>10.4 Run all tests</h3>
+  <ol>
+    <li>Run <code>node --test lander/test.js</code>.</li>
+    <li>Run <code>.venv/bin/python -m unittest discover -s tests</code>.</li>
+    <li>Run <code>.venv/bin/python tests/e2e_lander.py</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py verify</code>.</li>
+    <li>Read the output. Each line must start with <code>ok</code>.</li>
+  </ol>
+  <p>The <code>verify</code> command needs no LLM. A full run writes <code>results/verify.json</code>, and the manual reads that file. A run with fewer episodes does not change that file.</p>
+  <h3>10.5 Get a new reply from the LLM</h3>
+  <div class="warn"><b>CAUTION</b> Each <code>ask</code> command uses LLM capacity. See section 4.1 for the cost figures.</div>
+  <ol>
+    <li>Run <code>.venv/bin/python wsp.py ask lander pads</code>.</li>
+    <li>Copy the run folder path from the output.</li>
+    <li>Run <code>.venv/bin/python wsp.py score &lt;run folder&gt;</code>.</li>
+    <li>Read <code>score.json</code> in the run folder.</li>
+  </ol>
+  <h3>10.6 Show the new networks on the page</h3>
+  <ol>
+    <li>Run <code>.venv/bin/python wsp.py lander-export &lt;run 1&gt; &lt;run 2&gt; &lt;run 3&gt;</code>.</li>
+    <li>Reload the page.</li>
+  </ol>
+  <h3>10.7 Run the read experiments</h3>
+  <ol>
+    <li>Run <code>.venv/bin/python wsp.py ask exp1 breakout</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py ask exp1 breakout --shuffle</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py score &lt;run folder&gt;</code> for each run folder.</li>
+  </ol>
+  <h3>10.8 Run the stress test</h3>
+  <ol>
+    <li>Run <code>node lander/stress.js &lt;run 1&gt;/network.json &lt;run 2&gt;/network.json &lt;run 3&gt;/network.json &gt; results/lander-stress.json</code>.</li>
+  </ol>
+  <h3>10.9 Rebuild this manual</h3>
+  <ol>
+    <li>Run <code>.venv/bin/python docs/capture.py</code>.</li>
+    <li>Run <code>node docs/build.js</code>.</li>
+    <li>Open <code>docs/index.html</code> in a browser.</li>
+  </ol>
+  <h3>10.10 Check the references</h3>
+  <ol>
+    <li>Run <code>python3 docs/check_refs.py</code>.</li>
+    <li>Read the output. A link with the status <code>FAILED</code> stops the manual build.</li>
+    <li>Run <code>node docs/build.js</code>.</li>
+  </ol>
+</section>
+
+<section id="faults" style="display:grid;gap:10px">
+  <h2>11. Fault isolation</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Fault</th><th>Cause</th><th>Remedy</th></tr></thead>
+    <tbody>
+      <tr><td><code>Not logged in · Please run /login</code></td><td>The CLI has no login. The flag <code>--bare</code> causes this fault with a keychain login.</td><td>Do not use <code>--bare</code>. Run <code>claude</code> and log in.</td></tr>
+      <tr><td><code>run not usable</code></td><td>The call failed, timed out, stopped before the end of the reply, or used a tool.</td><td>Read <code>run.json</code> and <code>stderr.log</code> in the run folder. Do not use this run as a result.</td></tr>
+      <tr><td><code>refusing to score</code></td><td>Same as <code>run not usable</code>. The tool never scores these runs, because a failed call must not look like a bad reply.</td><td>Make a new call.</td></tr>
+      <tr><td>Page has no Claude pilots</td><td><code>lander/networks.js</code> has no networks.</td><td>Do procedure 10.6.</td></tr>
+      <tr><td><code>FileNotFoundError</code> in <code>data/</code></td><td>The data is not fetched.</td><td>Do procedure 10.1.</td></tr>
+      <tr><td>Score has <code>cut_off: true</code></td><td>The reply finished, but its edits block has no closing line.</td><td>Keep the score. The parser reads the statements that it can find.</td></tr>
+      <tr><td>Manual build stops: <code>was scored on</code></td><td>A run was scored with a short <code>--episodes</code> value.</td><td>Run <code>wsp.py score</code> on that run with no <code>--episodes</code> value.</td></tr>
+      <tr><td>Score has items in <code>errors</code></td><td>The parser could not read some statements. The parser skips them, as the prompt says.</td><td>Read the statements in <code>score.json</code>. Keep the score. Report the errors.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="limits" style="display:grid;gap:10px">
+  <h2>12. Limits and next work</h2>
+  <h3>12.1 Known limits</h3>
+  <ul>
+    <li>Sample size is small: 1 read reply, 1 control reply, 1 Breakout reply and 3 Three Pads replies.</li>
+    <li>This project did not run Experiments 2, 3, 4, 6, 7 or 8 with an LLM. It only checks the saved Experiment 2 replies.</li>
+    <li>A person has not yet flown the game for this manual. The browser test operates the controls, but does not land by hand.</li>
+    <li>The game has no wind, no terrain and no rotation. These were left out to keep the state simple.</li>
+    <li>The page uses unseeded random numbers. Flights on the page do not repeat. Only the scorer uses seeds.</li>
+    <li>The Medium article was read in part only.</li>
+  </ul>
+  <h3>12.2 Next work, in order</h3>
+  <ol>
+    <li>Add a true null control for Experiment 1: random weights, and a prompt with no weights.</li>
+    <li>Run all four Experiment 1 networks, three replies each.</li>
+    <li>Write a plain program baseline for Breakout.</li>
+    <li>Make a harder Three Pads: low fuel in the prompt, wind, or rotation. Add a network trained with PPO as a baseline.</li>
+  </ol>
+</section>
+
+<section id="licences" style="display:grid;gap:10px">
+  <h2>13. Licences and attribution</h2>
+  <p>The file <code>LICENSE</code> gives the terms of this project. The code is MIT. The manual and the run results are CC BY 4.0 {{cite:ccby}}. The items below keep their own terms.</p>
+  <ul>
+    <li>Logs, networks and prompts from <a href="https://github.com/RikiyaT/lm_understand-logs">lm_understand-logs</a>: CC BY 4.0, by the post's authors. Their scripts are MIT.</li>
+    <li>The edits format and the structure of <code>lander/prompt.md</code> come from the authors' Experiment 5 prompt.</li>
+    <li>The Experiment 5 prompts quote MinAtar source code, by Kenny Young and Tian Tian: GPL-3.0 {{cite:gpl3}}. The project fetches these files when it runs. Do not commit <code>data/</code> or <code>results/exp*/prompt.txt</code>. Git ignores both.</li>
+    <li>The project imports MinAtar when it runs, but does not include its code. A distribution that includes MinAtar must follow GPL-3.0.</li>
+    <li>Three Pads is original to this project. It does not use assets from any existing game.</li>
+  </ul>
+</section>
+
+<section id="references" style="display:grid;gap:10px">
+  <h2>14. References</h2>
+  <p>This section lists {{REFS_TOTAL}} references. The tool <code>docs/check_refs.py</code> checked all of them on {{REFS_DATE}}. The build stops if a citation has no entry, if an entry in section 14.1 has no citation, or if a check failed.</p>
+  <ul>
+    <li><b>arXiv references.</b> The arXiv API must return the same title, and the first author must be a whole word in its author list.</li>
+    <li><b>Other references.</b> The link must open, and the expected title must be in the page as whole words. An HTTP error fails the check, except 401, 403 and 429, which show as "link refuses scripts". Some pages use a different source: PyPI through its JSON API, and the Spall DOI through Crossref. Dataset entries use the dataset name, because the page does not show a formal title.</li>
+    <li><b>One PDF.</b> The Guide Labs report is a PDF. The check tool cannot read PDF text. Claude read the title and the authors on page 1.</li>
+  </ul>
+  <p>The check shows that each work exists with its stated title. The check does not confirm the claims inside each work. Section 14.2 and section 14.3 are copied from the bibliographies of the source documents. This project did not read those works in full.</p>
+  <h3>14.1 Documents that this manual cites</h3>
+  {{REFS_MANUAL}}
+  <h3>14.2 Documents that the main post cites</h3>
+  {{REFS_POST}}
+  <h3>14.3 Documents that the second report cites</h3>
+  {{REFS_REPORT}}
+</section>
+</main>

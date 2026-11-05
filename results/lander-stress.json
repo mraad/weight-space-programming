@@ -1,0 +1,316 @@
+{
+ "episodes": 3000,
+ "seed": 7000000,
+ "table": {
+  "fresh seeds, normal start": {
+   "Plain program": {
+    "landed": 0.9983333333333333,
+    "outcomes": {
+     "landed": 2995,
+     "lost": 5
+    }
+   },
+   "Claude reply A": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   },
+   "Claude reply B": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   },
+   "Claude reply C": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   }
+  },
+  "fuel 150": {
+   "Plain program": {
+    "landed": 0.434,
+    "outcomes": {
+     "off_pad": 647,
+     "crashed": 1046,
+     "landed": 1302,
+     "lost": 5
+    }
+   },
+   "Claude reply A": {
+    "landed": 0.5903333333333334,
+    "outcomes": {
+     "crashed": 1229,
+     "landed": 1771
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.4593333333333333,
+    "outcomes": {
+     "crashed": 1610,
+     "landed": 1378,
+     "off_pad": 12
+    }
+   },
+   "Claude reply C": {
+    "landed": 0.6176666666666667,
+    "outcomes": {
+     "crashed": 1066,
+     "landed": 1853,
+     "off_pad": 81
+    }
+   }
+  },
+  "fuel 100": {
+   "Plain program": {
+    "landed": 0.29533333333333334,
+    "outcomes": {
+     "off_pad": 1403,
+     "landed": 886,
+     "crashed": 401,
+     "lost": 310
+    }
+   },
+   "Claude reply A": {
+    "landed": 0.08,
+    "outcomes": {
+     "crashed": 2671,
+     "off_pad": 89,
+     "landed": 240
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.001,
+    "outcomes": {
+     "off_pad": 591,
+     "crashed": 2406,
+     "landed": 3
+    }
+   },
+   "Claude reply C": {
+    "landed": 0.16,
+    "outcomes": {
+     "off_pad": 669,
+     "crashed": 1851,
+     "landed": 480
+    }
+   }
+  },
+  "fuel 60": {
+   "Plain program": {
+    "landed": 0.048,
+    "outcomes": {
+     "off_pad": 1705,
+     "crashed": 1129,
+     "lost": 22,
+     "landed": 144
+    }
+   },
+   "Claude reply A": {
+    "landed": 0,
+    "outcomes": {
+     "off_pad": 1226,
+     "crashed": 1774
+    }
+   },
+   "Claude reply B": {
+    "landed": 0,
+    "outcomes": {
+     "off_pad": 1419,
+     "crashed": 1581
+    }
+   },
+   "Claude reply C": {
+    "landed": 0,
+    "outcomes": {
+     "off_pad": 1319,
+     "crashed": 1681
+    }
+   }
+  },
+  "start speed vx +-0.6": {
+   "Plain program": {
+    "landed": 0.961,
+    "outcomes": {
+     "lost": 117,
+     "landed": 2883
+    }
+   },
+   "Claude reply A": {
+    "landed": 0.9383333333333334,
+    "outcomes": {
+     "landed": 2815,
+     "lost": 185
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.942,
+    "outcomes": {
+     "landed": 2826,
+     "lost": 174
+    }
+   },
+   "Claude reply C": {
+    "landed": 0.951,
+    "outcomes": {
+     "landed": 2853,
+     "lost": 147
+    }
+   }
+  },
+  "start speed vx +-1.0": {
+   "Plain program": {
+    "landed": 0.6916666666666667,
+    "outcomes": {
+     "lost": 839,
+     "landed": 2075,
+     "crashed": 83,
+     "off_pad": 3
+    }
+   },
+   "Claude reply A": {
+    "landed": 0.6876666666666666,
+    "outcomes": {
+     "lost": 928,
+     "landed": 2063,
+     "crashed": 9
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.687,
+    "outcomes": {
+     "lost": 917,
+     "landed": 2061,
+     "crashed": 22
+    }
+   },
+   "Claude reply C": {
+    "landed": 0.6963333333333334,
+    "outcomes": {
+     "lost": 877,
+     "landed": 2089,
+     "crashed": 34
+    }
+   }
+  },
+  "start falling vy -1.0": {
+   "Plain program": {
+    "landed": 0.9836666666666667,
+    "outcomes": {
+     "landed": 2951,
+     "lost": 43,
+     "crashed": 6
+    }
+   },
+   "Claude reply A": {
+    "landed": 0.991,
+    "outcomes": {
+     "landed": 2973,
+     "lost": 27
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.981,
+    "outcomes": {
+     "landed": 2943,
+     "lost": 57
+    }
+   },
+   "Claude reply C": {
+    "landed": 0.983,
+    "outcomes": {
+     "landed": 2949,
+     "lost": 51
+    }
+   }
+  },
+  "start low y = 15": {
+   "Plain program": {
+    "landed": 0.9993333333333333,
+    "outcomes": {
+     "landed": 2998,
+     "crashed": 2
+    }
+   },
+   "Claude reply A": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   },
+   "Claude reply B": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   },
+   "Claude reply C": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   }
+  },
+  "start low y = 8": {
+   "Plain program": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   },
+   "Claude reply A": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.9866666666666667,
+    "outcomes": {
+     "landed": 2960,
+     "crashed": 35,
+     "off_pad": 5
+    }
+   },
+   "Claude reply C": {
+    "landed": 1,
+    "outcomes": {
+     "landed": 3000
+    }
+   }
+  },
+  "start edge, far pad": {
+   "Plain program": {
+    "landed": 0.828,
+    "outcomes": {
+     "landed": 2484,
+     "lost": 515,
+     "crashed": 1
+    }
+   },
+   "Claude reply A": {
+    "landed": 0.806,
+    "outcomes": {
+     "landed": 2418,
+     "lost": 582
+    }
+   },
+   "Claude reply B": {
+    "landed": 0.8046666666666666,
+    "outcomes": {
+     "landed": 2414,
+     "lost": 586
+    }
+   },
+   "Claude reply C": {
+    "landed": 0.8273333333333334,
+    "outcomes": {
+     "landed": 2482,
+     "lost": 518
+    }
+   }
+  }
+ }
+}

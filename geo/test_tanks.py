@@ -9,6 +9,7 @@ from unittest import mock
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detector
 import tanks
 
 
@@ -144,6 +145,39 @@ class FilterFit(unittest.TestCase):
         changed["image"][:, 512:, :] = 255
         for a, b in zip(tanks.fit_filter(t), tanks.fit_filter(changed)):
             self.assertTrue(np.array_equal(a, b))
+
+
+class DetectorMatch(unittest.TestCase):
+    def setUp(self):
+        from shapely.geometry import Point
+        self.point = Point
+        self.truths = [Point(0, 0).buffer(10), Point(100, 0).buffer(10), Point(200, 0).buffer(10)]
+        self.parts = ["val", "val", "test"]
+
+    def run_match(self, preds, scores, pred_part, conf=0.7, part="val"):
+        return detector.match(preds, np.array(scores), self.truths, pred_part, self.parts, conf, part)
+
+    def test_perfect_circles_in_one_partition(self):
+        r = self.run_match(self.truths, [0.9, 0.8, 0.9], ["val", "val", "test"])
+        self.assertEqual((r["ap50"], r["f1"], r["tp"], r["fp"], r["fn"]), (1.0, 1.0, 2, 0, 0))
+
+    def test_low_score_counts_for_ap_but_not_at_the_threshold(self):
+        r = self.run_match(self.truths[:2], [0.9, 0.5], ["val", "val"])
+        self.assertEqual((r["ap50"], r["tp"], r["fn"]), (1.0, 1, 1))
+
+    def test_false_circle_only_counts_in_its_partition(self):
+        false = self.point(50, 50).buffer(5)
+        preds, scores = self.truths[:2] + [false], [0.9, 0.9, 0.8]
+        self.assertEqual(self.run_match(preds, scores, ["val", "val", "val"])["fp"], 1)
+        self.assertEqual(self.run_match(preds, scores, ["val", "val", "test"])["fp"], 0)
+
+    def test_two_circles_on_one_tank_give_one_match(self):
+        r = self.run_match([self.truths[0], self.truths[0]], [0.9, 0.8], ["val", "val"])
+        self.assertEqual((r["tp"], r["fp"], r["fn"]), (1, 1, 1))
+
+    def test_a_poor_overlap_is_not_a_match(self):
+        r = self.run_match([self.point(15, 0).buffer(10)], [0.9], ["val"])
+        self.assertEqual((r["tp"], r["fp"]), (0, 1))
 
 
 class SealedTest(unittest.TestCase):

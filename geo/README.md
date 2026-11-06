@@ -6,6 +6,8 @@ This work tests if an LLM can repair a detection network by editing its weights,
 
 **Result: use a plain fix or retrain. On the test cells, the LLM repair is better than no edit, but it does not show practical gain over histogram match or AdaBN.**
 
+**To find and count tanks on this image, use zero-shot RT-DETRv2. It needs no training, and it found 23 of 28 test tanks with 2 false objects. For exact outlines, a network trained on the image is better.**
+
 **Stage C, run after that at the user's request: Claude and GPT-6 Astra each wrote working tank detectors from zeros, with no training. Under the rule set before the replies, both results are "some design skill, no practical gain".**
 
 ## Final result
@@ -66,6 +68,45 @@ What this shows, before any LLM call:
 - A head edit has a low limit. Real gradients on the head reach only 0.493 IoU and 0.128 object F1. A reply must change more than the head to do better.
 - Plain fixes are strong. Histogram match and AdaBN need no labels and no LLM. A reply must beat them to have practical use.
 - Colour jitter prevents most of the fault at training time. If you can retrain, use it.
+
+## Zero-shot RT-DETRv2 on `Tanks.tif`
+
+This is a detector with no training on this image and no weight edits. It uses DOTA weights through LibreYOLO. The settings were fixed before the run, from the earlier work on the 2015 image: RT-DETRv2-S at scale 1.5, score >= 0.70, on the same pixel grid and cells as the networks above. A second run at the native 0.5 m pixel size is for comparison only.
+
+Rule, set before the result: if the fixed settings beat the network trained on `Tanks.tif` on val cells, use the detector, and repair has no fault to fix on this image.
+
+| Network or detector | Val IoU | Val object F1 | Test IoU (95%) | Test object F1 (95%) | Test found, false, missed |
+|---|---:|---:|---|---|---|
+| **RT-DETRv2-S, fixed settings** | **0.789** | **0.882** | 0.716 (0.621 to 0.787) | 0.868 (0.690 to 0.962) | 23, 2, 5 |
+| RT-DETRv2-S, native 0.5 m pixels | 0.570 | 0.788 | 0.637 (0.496 to 0.762) | 0.863 (0.667 to 0.958) | 22, 1, 6 |
+| Network trained on `Tanks.tif` | 0.837 | 0.842 | 0.806 (0.751 to 0.844) | 0.793 (0.577 to 1.000) | 21, 4, 7 |
+| Histogram match on the failed network | 0.578 | 0.500 | 0.588 (0.443 to 0.696) | 0.600 (0.261 to 0.836) | 15, 7, 13 |
+| Best Claude reply on val, from zeros | 0.543 | 0.231 | 0.576 (0.422 to 0.701) | 0.278 (0.179 to 0.400) | 10, 34, 18 |
+
+All rows use the same metric: a tank map, connected regions, and a match at IoU >= 0.5. Detector circles are drawn on the map, so two touching circles can merge. When each circle counts as one object, the fixed settings give an object F1 of 0.882 on val and 0.889 on test, with AP50 of 0.945 on val and 0.862 on test.
+
+**The rule was not complete, because it did not name a metric.** On val cells, the detector is better on object F1 (0.882, 0.842) and worse on pixel IoU (0.789, 0.837). On the test cells, the point values go the same way, and the intervals overlap. So the rule does not give a clear result. The detector is the better choice to find and count tanks. The trained network is better for exact outlines.
+
+Over all 97 tanks, the fixed settings find 78, and the median IoU of a found tank is 0.78. A circle does not follow an outline exactly.
+
+| Tank diameter | Tanks | Found at score >= 0.70 | Found at any score |
+|---|---:|---:|---:|
+| Under 20 m | 12 | 4 | 9 |
+| 20 to 40 m | 38 | 30 | 35 |
+| 40 to 80 m | 23 | 21 | 22 |
+| 80 m or more | 24 | 23 | 24 |
+
+Most of the misses are small tanks. One missed tank is 124 m across.
+
+Limits:
+
+- The earlier work chose the model, scale and threshold on 73 tanks in this same area, on the 2015 image. Thus these settings are not fully independent of these cells, and the results can be optimistic.
+- The test cells were opened before this run, so they only report.
+- The score of 0.70 was not tuned on these cells. A lower score finds more tanks and can add false objects. That was not measured.
+- This is one image. The DOTA weights are general, and a new scene can differ.
+- This run used LibreYOLO at commit `89efbe87`, torch 2.11.0+cu128, and `libreyolo_tanks/detect.py`.
+
+Results and commands: `geo/detector.py`. Detections are in `results/geo/rtdetr/`, and the scores are in `results/geo/detector.json`.
 
 ## Stage C result
 

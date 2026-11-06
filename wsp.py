@@ -14,6 +14,7 @@ import multiprocessing
 import os
 import random
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -45,6 +46,7 @@ EXPERIMENTS = {
     "exp5": {"dir": "exp5_write_from_scratch", "items": GAMES, "effort": "xhigh", "episodes": 1000,
              "prompt": "runs/{}/message.txt", "answer": "runs/{}/reply/answer.md"},
     "lander": {"items": ["pads"], "effort": "xhigh", "episodes": 3000},
+    "tanks": {"items": ["repair", "repair-shuffled", "write"], "effort": "xhigh"},  # prompts come from geo/tanks.py report
 }
 SHAPES = {"W1": (600, 32), "b1": (32,), "W2": (32, 32), "b2": (32,), "W3": (32, 6), "b3": (6,)}
 LANDER = ROOT / "lander"
@@ -109,9 +111,10 @@ def shuffle_w1(prompt, seed=0):
 
 # --- writing: the `edits` language ---------------------------------------------------------------
 
-TENSORS = "|".join(SHAPES)
-STATEMENT = re.compile(rf"^({TENSORS})\[([^\]]*)\]\s*([-+*]?=)\s*(.+)$", re.S)
-STARTS_STATEMENT = re.compile(rf"^({TENSORS})\[")
+def statement_patterns(names):
+    """Regexes for one statement and for its start. Names can hold dots, such as segmentation_head.0.weight."""
+    tensors = "|".join(map(re.escape, names))
+    return re.compile(rf"^({tensors})\[([^\]]*)\]\s*([-+*]?=)\s*(.+)$", re.S), re.compile(rf"^({tensors})\[")
 
 
 def parse_index(text):
@@ -125,14 +128,14 @@ def parse_index(text):
     return tuple(parts)
 
 
-def split_statements(block):
+def split_statements(block, starts):
     """Join list continuation lines. A new statement ends an unbalanced one, so one bad line costs one statement."""
     statements, buffer = [], ""
     for raw in block.splitlines():
         line = raw.split("#", 1)[0].strip()
         if not line:
             continue
-        if buffer and STARTS_STATEMENT.match(line):
+        if buffer and starts.match(line):
             statements.append(buffer)
             buffer = ""
         buffer = f"{buffer} {line}".strip()
@@ -144,8 +147,8 @@ def split_statements(block):
     return statements
 
 
-def apply_statement(net, statement):
-    match = STATEMENT.match(statement)
+def apply_statement(net, statement, pattern):
+    match = pattern.match(statement)
     if not match:
         raise ValueError("unreadable statement")
     name, index, op, rhs = match.groups()
@@ -160,18 +163,20 @@ def apply_statement(net, statement):
     tensor[idx] = {"=": value, "*=": target * value, "+=": target + value, "-=": target - value}[op]
 
 
-def apply_edits(reply, shapes=SHAPES):
-    """Build the network from the LAST edits block. Bad statements are skipped and reported, as the prompt promises."""
-    net = {name: np.zeros(shape, np.float32) for name, shape in shapes.items()}
+def apply_edits(reply, shapes=SHAPES, base=None):
+    """Build the network from the LAST edits block. Bad statements are skipped and reported, as the prompt promises.
+    The network starts from a copy of base if given, else from zeros."""
+    net = {name: tensor.copy() for name, tensor in base.items()} if base else {name: np.zeros(shape, np.float32) for name, shape in shapes.items()}
+    pattern, starts = statement_patterns(net)
     blocks = list(re.finditer(r"```edits[ \t]*\n(.*?)(?:```|\Z)", reply, re.S))
     report = {"block": bool(blocks), "statements": 0, "applied": 0, "errors": [], "cut_off": False}
     if blocks:
         report["cut_off"] = not blocks[-1].group(0).endswith("```")
-        statements = split_statements(blocks[-1].group(1))
+        statements = split_statements(blocks[-1].group(1), starts)
         report["statements"] = len(statements)
         for statement in statements:
             try:
-                apply_statement(net, statement)
+                apply_statement(net, statement, pattern)
                 report["applied"] += 1
             except (ValueError, SyntaxError, IndexError, TypeError, RecursionError, MemoryError) as err:
                 report["errors"].append({"statement": statement[:200], "error": str(err)})
@@ -342,6 +347,69 @@ def call_claude(prompt, model, effort, timeout):
     return cmd, done
 
 
+# Every enabled Codex tool feature. Codex still names some tools to the model, but a probe showed that exec and
+# spawn_agent both fail closed with these off. No flag removes the names, so an attempt must fail the audit instead.
+CODEX_DISABLED = ("apps", "browser_annotation_api", "browser_use", "browser_use_external", "browser_use_full_cdp_access",
+                  "code_mode_host", "code_mode_interrupt", "computer_use", "goals", "hooks", "image_generation", "in_app_browser",
+                  "multi_agent", "plugins", "remote_plugin", "shell_snapshot", "shell_tool", "skill_mcp_dependency_install",
+                  "skill_search", "sleep_tool", "tool_call_mcp_elicitation", "tool_suggest", "unified_exec", "unified_exec_tty",
+                  "view_image", "workspace_dependencies", "worktrees", "write_stdin_approval")
+CODEX_ITEMS = {"agent_message", "reasoning"}
+CODEX_CLOSED = "code-mode host is disabled"  # expected at startup: it is the proof that tool code cannot run
+
+
+def parse_codex(stdout, stderr, model, wall_s):
+    """Turn a Codex JSON stream into the event stream call_claude gives. A tool attempt shows only in stderr, so read both."""
+    items, usage, failure, done = [], {}, None, False
+    for line in filter(str.strip, stdout.splitlines()):
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        kind = event.get("type")
+        if kind == "item.completed":
+            items.append(event.get("item", {}))
+        elif kind == "turn.completed":
+            usage, done = event.get("usage", {}), True
+        elif kind in ("turn.failed", "error"):
+            failure = json.dumps(event)[:500]
+    text = "\n\n".join(i.get("text", "") for i in items if i.get("type") == "agent_message")
+    calls = [i.get("type", "unknown") for i in items if i.get("type") not in CODEX_ITEMS and not
+             (i.get("type") == "error" and "Code Mode is unavailable" in i.get("message", ""))]
+    calls += ["tool_router_error" for line in stderr.splitlines() if "tools::router" in line]
+    content = [{"type": "text", "text": text}] + [{"type": "tool_use", "name": name} for name in calls]
+    return [{"type": "system", "subtype": "init", "model": model, "tools": [], "mcp_servers": []},
+            {"type": "assistant", "message": {"model": model, "role": "assistant", "content": content}},
+            {"type": "result", "subtype": "success", "is_error": bool(failure), "stop_reason": "end_turn" if done and not failure else "not_finished",
+             "result": text, "duration_ms": int(wall_s * 1000),
+             "usage": {"input_tokens": usage.get("input_tokens"), "output_tokens": usage.get("output_tokens")}}]
+
+
+def call_codex(prompt, model, effort, timeout):
+    """One reply through the Codex login, from an empty folder and an empty Codex home that holds only a link to the login."""
+    cmd = ["codex", "exec", "--json", "--ephemeral", "--skip-git-repo-check", "--ignore-user-config", "--ignore-rules",
+           "--sandbox", "read-only", "-m", model, "-c", f"model_reasoning_effort={effort}", "-c", "web_search=disabled",
+           "--color", "never"]
+    for feature in CODEX_DISABLED:
+        cmd += ["--disable", feature]
+    real_auth = Path.home() / ".codex" / "auth.json"
+    started = time.time()
+    with tempfile.TemporaryDirectory() as home, tempfile.TemporaryDirectory() as cwd:
+        link = Path(home) / "auth.json"
+        link.symlink_to(real_auth)
+        env = {**{k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}, "CODEX_HOME": home}
+        try:
+            done = subprocess.run(cmd, input=prompt, cwd=cwd, env=env, capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired as err:
+            text = lambda out: out.decode(errors="replace") if isinstance(out, bytes) else out or ""
+            done = subprocess.CompletedProcess(cmd, 124, text(err.stdout), f"{text(err.stderr)}timed out after {timeout} s")
+        finally:
+            if link.is_file() and not link.is_symlink():  # a token refresh replaced the link; losing it would break the user's login
+                shutil.copy2(link, real_auth)
+    events = parse_codex(done.stdout, done.stderr, model, time.time() - started)
+    return cmd, subprocess.CompletedProcess(cmd, done.returncode, "".join(json.dumps(e) + "\n" for e in events), done.stderr)
+
+
 def parse_events(stdout):
     """Split CLI output into events and other lines. A stray warning must not cost us a reply that was already paid for."""
     events, other = [], []
@@ -369,19 +437,25 @@ def run_problem(record):
 
 
 def ask(args):
-    prompt = lander_prompt() if args.exp == "lander" else data_path(args.exp, "prompt", args.item).read_text()
+    if args.exp == "tanks":
+        prompt = (RESULTS / "geo" / "prompts" / f"{args.item}.txt").read_text()
+    else:
+        prompt = lander_prompt() if args.exp == "lander" else data_path(args.exp, "prompt", args.item).read_text()
     if args.shuffle:
         prompt = shuffle_w1(prompt, args.seed)
     # A local server has no effort setting, so a local run must not record one.
     effort = "default" if args.base_url else args.effort or EXPERIMENTS[args.exp]["effort"]
     tag = f"{args.exp}-{args.item}{'-shuffle' if args.shuffle else ''}-{args.model.replace('/', '-')}-{effort}-{time.strftime('%Y%m%dT%H%M%S')}-{os.getpid()}"
     # In their own folder: docs/build.js uses every results/lander-pads-* run, and these are not part of the manual.
-    run = (RESULTS / "local" if args.base_url else RESULTS) / tag
+    # Tank runs hold numbers from private imagery, so results/geo stays out of git.
+    run = (RESULTS / "geo" if args.exp == "tanks" else RESULTS / "local" if args.base_url else RESULTS) / tag
     run.mkdir(parents=True)
     (run / "prompt.txt").write_text(prompt)
     started = time.time()
     if args.base_url:
         cmd, done = call_local(prompt, args.base_url, args.model, args.timeout, args.reply_seed, json.loads(args.extra_body or "{}"))
+    elif args.model.startswith("gpt-"):
+        cmd, done = call_codex(prompt, args.model, effort, args.timeout)
     else:
         cmd, done = call_claude(prompt, args.model, effort, args.timeout)
     events, other = parse_events(done.stdout)
@@ -408,6 +482,8 @@ def score(args):
     if problem:
         sys.exit(f"refusing to score: {problem}")
     answer, exp, item = (run / "answer.md").read_text(), record["exp"], record["item"]
+    if exp == "tanks":
+        sys.exit(f"score this run on gc1: geo/tanks.py score {run}")
     episodes = args.episodes or EXPERIMENTS[exp].get("episodes")
     if exp == "lander":
         net, result = apply_edits(answer, LANDER_SHAPES)
@@ -509,7 +585,7 @@ def main():
     args = parser.parse_args()
     if getattr(args, "exp", None) and args.item not in EXPERIMENTS[args.exp]["items"]:
         parser.error(f"item must be one of {EXPERIMENTS[args.exp]['items']}")
-    if args.func is ask and args.shuffle and args.exp in ("exp5", "lander"):
+    if args.func is ask and args.shuffle and args.exp in ("exp5", "lander", "tanks"):
         parser.error("--shuffle applies to the read experiments only")
     args.func(args)
 

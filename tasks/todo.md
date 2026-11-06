@@ -33,3 +33,18 @@ Plan changes: `control`, `apply` and `eval` became `ask --shuffle` and `score`.
 ## Later, not in this version
 
 True null control for Exp 1 (random weights, no weights). All Exp 1 networks with replicates. Heuristic-program baseline for Exp 5. Harder Three Pads with a PPO baseline. Exp 2 and 3 live runs, Codex backend, Exp 4, 6, 7, 8.
+
+# Tank repair by weight edits (branch tank-weight-changer)
+
+Plan and gates: `geo/README.md`. The changer is Claude Opus 5.5 only.
+
+- [x] Parser: dotted tensor names, edits start from a base network. Existing tests and `verify` unchanged.
+- [x] Stage A: harness, baselines, Gate 0 on gc1. The fault exists.
+- [x] No-LLM check of the scoring path: the LDA edits score the same as the LDA baseline.
+- [x] User confirms the LLM spend.
+- [x] Stage B: `ask tanks repair` x 3, `ask tanks repair-shuffled` x 3, score on gc1, Gate 1. Result: no skill, control did not collapse.
+- [x] Rounds: not needed, the replies beat no edit.
+- [x] Stage C: skipped by Gate 1, then run at the user's request under its own rule. Result: some design skill, no practical gain.
+- [x] Stage C with GPT-6 Astra through Codex, same prompt and rule. Result: the same verdict.
+- [x] User decides: close it.
+- [x] `final`: open the test cells once. Write the result.

@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-05",
+ "checked": "2026-11-06",
  "results": {
   "takehi2026": {
    "status": "title confirmed",
@@ -90,6 +90,42 @@
    "source": "HTTP 200"
   },
   "gpl3": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "ronneberger2015unet": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "he2016resnet": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "ioffe2015bn": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "li2016adabn": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "lv2024rtdetrv2": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "xia2018dota": {
+   "status": "title confirmed",
+   "source": "arXiv API, title and author"
+  },
+  "smp": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "libreyolo": {
+   "status": "title confirmed",
+   "source": "HTTP 200"
+  },
+  "codex": {
    "status": "title confirmed",
    "source": "HTTP 200"
   },

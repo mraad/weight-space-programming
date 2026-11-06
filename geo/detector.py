@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Score detector circles on the same pixel grid, cells and metrics as the networks in tanks.py.
 
-`grid` writes the pixel grid as a GeoTIFF for libreyolo_tanks/detect.py. `score` reads its GeoPackages.
+`grid` writes the pixel grid as a GeoTIFF for geo/detect.py. `score` reads its GeoPackages.
 """
 import argparse
 import json
@@ -39,7 +39,7 @@ def circles_mask(circles, shape, transform):
 
 
 def match(preds, scores, truths, pred_part, truth_part, conf, part):
-    """Greedy one-to-one match by score at IoU >= 0.5, as libreyolo_tanks/evaluate.py does, for one partition.
+    """Greedy one-to-one match by score at IoU >= 0.5, for one partition.
     Returns AP50 over all scores, and the object counts at score >= conf."""
     used = np.zeros(len(truths), bool)
     hits, misses_at, tp_conf, fp_conf = [], [], 0, 0

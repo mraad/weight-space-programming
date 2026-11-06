@@ -1,5 +1,9 @@
 # Tank repair by weight edits
 
+> This experiment did not go as I would like, but that is okay. Not everything has to be a success. We learn from our failures.
+
+The full account, with figures, is in section 12 of the manual, `docs/index.html`.
+
 This work tests if an LLM can repair a detection network by editing its weights, with no training.
 
 **Status: closed. Gate 1 reads "no skill", so Stage C did not run. The test cells were opened once, and the result is below.**
@@ -104,7 +108,7 @@ Limits:
 - The test cells were opened before this run, so they only report.
 - The score of 0.70 was not tuned on these cells. A lower score finds more tanks and can add false objects. That was not measured.
 - This is one image. The DOTA weights are general, and a new scene can differ.
-- This run used LibreYOLO at commit `89efbe87`, torch 2.11.0+cu128, and `libreyolo_tanks/detect.py`.
+- This run used LibreYOLO at commit `89efbe87`, torch 2.11.0+cu128, and `geo/detect.py`.
 
 Results and commands: `geo/detector.py`. Detections are in `results/geo/rtdetr/`, and the scores are in `results/geo/detector.json`.
 

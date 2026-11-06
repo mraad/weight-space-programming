@@ -48,7 +48,7 @@ MinAtar experiments (`exp5`) score in Python through `play()` and `evaluate()` i
 
 - **Game rules:** `sim.js` is sent verbatim, so any edit changes the prompt and makes saved replies and scores incomparable. Physics values are also typed in `prompt.md` (pad positions, input scaling), `docs/source.html` and the `controllerPilot` tuning in `policy.js`.
 - **Network shape:** `LANDER_SHAPES` in `wsp.py`, the network section of `prompt.md`, and the JS test fixtures.
-- **Manual:** `docs/index.html` is generated, so edit `docs/source.html`. `build.js` computes tables and figures from `results/`, but `source.html` still has typed numbers in its prose (for example the stress test percentages and "30 of 484"). Recheck those when results change. The build reads `results/verify.json` and `results/lander-stress.json`. It uses every `lander-pads-*` run, so a new run also changes tables and figures.
+- **Manual:** `docs/index.html` is generated, so edit `docs/source.html`. `build.js` computes tables and figures from `results/`, but `source.html` still has typed numbers in its prose (for example the stress test percentages and "30 of 484"). Recheck those when results change. The build reads `results/verify.json` and `results/lander-stress.json`. It uses every `lander-pads-*` run, so a new run also changes tables and figures. Tank tables and figures read `docs/tanks.json`, because `results/geo/` is private; `docs/tank_figures.py` writes it. Section 12 has typed numbers in its prose. Keep imagery, masks and tank positions out of `docs/`.
 - **References:** add a citation as `{{cite:id}}` in `source.html` and an entry in `docs/references.json`, then run `python3 docs/check_refs.py`. The build fails on an unknown, unused or failed citation.
 
 ## Rules for experiments

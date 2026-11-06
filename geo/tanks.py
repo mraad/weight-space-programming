@@ -431,25 +431,36 @@ def hist_lut(src, dst):
     return lut
 
 
-def filter_lda(target):
-    """The floor: blur and contrast filters with a closed-form linear fit, and no network. Fit on train pixels only."""
-    keep = train_pixels(target)
-    image = target["image"].astype(np.float32)
+def filter_features(image):
+    image = image.astype(np.float32)
     gray = image.mean(0)
     feats = [gray, image[2], image[0] - image[2]]
     for sigma in (10, 20, 40, 80):  # about 8 to 64 m on this grid
         smooth = ni.gaussian_filter(gray, sigma)
         feats += [smooth, smooth - ni.gaussian_filter(gray, sigma * 2),
                   -np.sqrt(np.maximum(ni.gaussian_filter(gray * gray, sigma) - smooth ** 2, 0))]
-    X = np.stack(feats, -1)
-    X = (X - X[keep].mean(0)) / (X[keep].std(0) + 1e-6)
+    return np.stack(feats, -1)
+
+
+def fit_filter(target):
+    """A closed-form linear fit on blur and contrast filters. It sees train pixels only, because a blur would otherwise
+    carry val and test pixels into train features."""
+    keep = train_pixels(target)
     truth = target["inst"] > 0
+    X = filter_features(blank(target))
+    mean, std = X[keep].mean(0), X[keep].std(0) + 1e-6
+    X = (X - mean) / std
     pos, neg = X[keep & truth], X[keep & ~truth]
     w = np.linalg.solve(np.cov(neg[::7].T) + 1e-3 * np.eye(X.shape[-1]), pos.mean(0) - neg.mean(0))
-    score = X @ w
-    tr, y = score[keep], truth[keep]
+    tr, y = (X @ w)[keep], truth[keep]
     best = max(np.quantile(tr, np.linspace(0.5, 0.995, 60)), key=lambda v: ((tr > v) & y).sum() / max(((tr > v) | y).sum(), 1))
-    return score > best
+    return mean, std, w, best
+
+
+def filter_lda(target):
+    """The floor, with no network: the fit runs on the full image, so its blurs see the whole scene, as a network does."""
+    mean, std, w, best = fit_filter(target)
+    return (filter_features(target["image"]) - mean) / std @ w > best
 
 
 def retrain_head(path, target):
@@ -583,14 +594,16 @@ def fact_rule(f):
 
 
 def scored(pred, target):
-    """All partitions. The test cells were opened by `final`, so here they only report and select nothing."""
+    """Train and val. Test cells are added only after `final` opened them, and then they only report and select nothing."""
     table = counts(pred, target)
-    result = {part: summary(table, part_cells(target, part)) for part in ("train", "val", "test")}
-    cells = part_cells(target, "test")
-    rng = np.random.default_rng(0)
-    draws = [rng.choice(cells, len(cells)) for _ in range(2000)]
-    for m in ("iou", "obj_f1"):
-        result["test"][f"{m}_ci"] = np.percentile([summary(table, d)[m] for d in draws], [2.5, 97.5]).round(3).tolist()
+    opened = (OUT / "final.json").exists()
+    result = {part: summary(table, part_cells(target, part)) for part in ("train", "val", "test")[:3 if opened else 2]}
+    if opened:
+        cells = part_cells(target, "test")
+        rng = np.random.default_rng(0)
+        draws = [rng.choice(cells, len(cells)) for _ in range(2000)]
+        for m in ("iou", "obj_f1"):
+            result["test"][f"{m}_ci"] = np.percentile([summary(table, d)[m] for d in draws], [2.5, 97.5]).round(3).tolist()
     return result
 
 
@@ -615,7 +628,7 @@ def write_report(a):
     rows["tiny-trained-s0"] = scored(tiny_map(trained, target["image"]) > 0, target)
     (OUT / "write_baselines.json").write_text(json.dumps(rows, indent=1))
     for name, row in rows.items():
-        print(name, json.dumps({k: row[k] for k in ("train", "val")}), "test", json.dumps(row["test"]), flush=True)
+        print(name, json.dumps(row), flush=True)
 
 
 def write_score(a):
@@ -628,7 +641,7 @@ def write_score(a):
     model, result = tiny_from((run / "answer.md").read_text())
     result.update(scored(tiny_map(model, target["image"]) > 0, target))
     (run / "score.json").write_text(json.dumps(result, indent=1))
-    print(json.dumps({k: result[k] for k in ("applied", "statements", "nonzero", "nonfinite", "cut_off", "train", "val", "test")}))
+    print(json.dumps({k: result[k] for k in ("applied", "statements", "nonzero", "nonfinite", "cut_off", "train", "val", "test") if k in result}))
     if result["errors"]:
         print(f"{len(result['errors'])} statements skipped; see score.json")
 

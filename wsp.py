@@ -404,7 +404,7 @@ def call_codex(prompt, model, effort, timeout):
             text = lambda out: out.decode(errors="replace") if isinstance(out, bytes) else out or ""
             done = subprocess.CompletedProcess(cmd, 124, text(err.stdout), f"{text(err.stderr)}timed out after {timeout} s")
         finally:
-            if not link.is_symlink():  # a token refresh replaced the link; losing it would break the user's login
+            if link.is_file() and not link.is_symlink():  # a token refresh replaced the link; losing it would break the user's login
                 shutil.copy2(link, real_auth)
     events = parse_codex(done.stdout, done.stderr, model, time.time() - started)
     return cmd, subprocess.CompletedProcess(cmd, done.returncode, "".join(json.dumps(e) + "\n" for e in events), done.stderr)

@@ -19,7 +19,7 @@ Test cells of `Tanks.tif`: 28 tanks in 38 cells. These cells did not select any 
 | No edit, seed 2 | 0.242 | 0.097 to 0.355 | 0.000 | 0 to 0 | 0, 8, 28 | -0.198 to -0.005 | -0.356 to -0.058 |
 | LDA head | 0.475 | 0.321 to 0.596 | 0.222 | 0.075 to 0.458 | 6, 20, 22 | +0.056 to +0.217 | -0.013 to +0.180 |
 | Head retrained by gradient | 0.487 | 0.339 to 0.606 | 0.207 | 0.070 to 0.426 | 6, 24, 22 | +0.070 to +0.231 | -0.025 to +0.152 |
-| Filter LDA, no network | 0.524 | 0.325 to 0.677 | 0.245 | 0.082 to 0.516 | 6, 15, 22 | +0.058 to +0.292 | -0.057 to +0.267 |
+| Filter LDA, no network (see the note below) | 0.536 | 0.338 to 0.681 | 0.235 | 0.080 to 0.489 | 6, 17, 22 | not recomputed | not recomputed |
 | **Claude repair** | **0.598** | 0.460 to 0.711 | **0.449** | 0.303 to 0.606 | 11, 10, 17 | +0.160 to +0.349 | +0.095 to +0.417 |
 | Claude control 41910 | 0.558 | 0.435 to 0.652 | 0.423 | 0.250 to 0.688 | 11, 13, 17 | +0.141 to +0.302 | +0.057 to +0.444 |
 | Claude control 41914 | 0.080 | 0.040 to 0.128 | 0.013 | 0.005 to 0.024 | 5, 731, 23 | -0.366 to -0.160 | -0.341 to -0.045 |
@@ -55,7 +55,7 @@ Val cells of `Tanks.tif`: 19 tanks. Object F1 uses IoU >= 0.5. Each row is one n
 | Head retrained by gradient | Train labels | 0.493 | 0.128 |
 | AdaBN | New pixels, no labels | 0.481 | 0.578 |
 | Histogram match | New pixels, no labels | 0.578 | 0.500 |
-| Filter LDA, no network | Train labels | 0.514 | 0.286 |
+| Filter LDA, no network | Train labels | 0.523 | 0.278 |
 | Colour jitter in the 2015 training | No new data | 0.701 | 0.649 |
 | Network trained on `Tanks.tif` (upper bound) | Train labels, val selects the epoch | 0.837 | 0.842 |
 
@@ -74,7 +74,7 @@ Claude Opus 5.5 at `xhigh`, no tools, one reply each. All 3 replies finished, pa
 | Network | Nonzero weights | Val IoU | Val object F1 | Test IoU (95%) | Test object F1 (95%) | Test found, false, missed |
 |---|---:|---:|---:|---|---|---|
 | Fact rule, gray midpoint | 7 | 0.131 | 0.038 | 0.143 (0.075 to 0.215) | 0.049 (0.019 to 0.088) | |
-| Filter LDA, fitted on train pixels | | 0.514 | 0.286 | 0.524 (0.325 to 0.677) | 0.245 (0.082 to 0.516) | 6, 15, 22 |
+| Filter LDA, fitted on train pixels | | 0.523 | 0.278 | 0.536 (0.338 to 0.681) | 0.235 (0.080 to 0.489) | 6, 17, 22 |
 | **Claude 54466** | 409 | 0.479 | 0.294 | 0.517 (0.324 to 0.670) | 0.286 (0.139 to 0.500) | 7, 14, 21 |
 | **Claude 54464** | 140 | 0.505 | 0.217 | 0.556 (0.400 to 0.690) | 0.295 (0.160 to 0.471) | 9, 24, 19 |
 | **Claude 54468** | 305 | 0.543 | 0.231 | 0.576 (0.422 to 0.701) | 0.278 (0.179 to 0.400) | 10, 34, 18 |
@@ -82,7 +82,7 @@ Claude Opus 5.5 at `xhigh`, no tools, one reply each. All 3 replies finished, pa
 
 Zero and random networks score 0.000 to 0.028 val IoU, and object F1 0.
 
-**The rule reads "some design skill, no practical gain".** The median val IoU is 0.505. It is above the fact rule (0.131) and below filter LDA (0.514). The difference from filter LDA is small, and each reply is close to it, so this is a near tie and not a clear loss. On the test cells, the median reply is above filter LDA on IoU (0.556, 0.524) and object F1 (0.286, 0.245), but the intervals overlap.
+**The rule reads "some design skill, no practical gain".** The median val IoU is 0.505. It is above the fact rule (0.131) and below filter LDA (0.523). The difference from filter LDA is small, and each reply is close to it, so this is a near tie and not a clear loss. On the test cells, the median reply is above filter LDA on IoU (0.556, 0.536) and object F1 (0.286, 0.235), but the intervals overlap.
 
 These plain colour rules use only the fact sheet. They came after the replies, because the fact rule was a weak bar, so they do not change the verdict:
 
@@ -114,7 +114,7 @@ The same prompt and the same rule. GPT-6 Astra at `xhigh`, through `codex exec`,
 | Median, Astra | | 0.460 | 0.171 | 0.516 | 0.258 | |
 | Median, Claude | | 0.505 | 0.231 | 0.556 | 0.286 | |
 
-**The rule reads "some design skill, no practical gain", the same as Claude.** The median val IoU is 0.460. It is above the fact rule (0.131) and below filter LDA (0.514).
+**The rule reads "some design skill, no practical gain", the same as Claude.** The median val IoU is 0.460. It is above the fact rule (0.131) and below filter LDA (0.523).
 
 What the two samples show:
 
@@ -142,6 +142,17 @@ The result is the median of 3 replies on val cells. All 3 replies are reported. 
 | At or below the fact rule | No skill past the fact sheet. A plain program does this from the same numbers |
 | Above the fact rule, at or below filter LDA | Some design skill, no practical gain |
 | Above filter LDA | A strong result. It is not expected. Check it hard on a new scene |
+
+## Correction to filter LDA
+
+A review found that the first filter LDA fit used blurs of the full image, so val and test pixels near a cell edge reached its train features. This broke the partition rule. No label leaked. The fit now uses only train pixels, and a test proves it. The tables use the new values.
+
+| Filter LDA | Val IoU | Val object F1 | Test IoU | Test object F1 |
+|---|---:|---:|---:|---:|
+| First fit | 0.514 | 0.286 | 0.524 | 0.245 |
+| Corrected fit | 0.523 | 0.278 | 0.536 | 0.235 |
+
+No verdict changes, because the bar moved up and the median replies were already below it. The corrected fit used the test cells after `final`, and no choice depends on it. `final.json` keeps the first fit, so its differences from no edit are for the first fit.
 
 ## Stage B results
 
@@ -228,6 +239,10 @@ These use LLM capacity. Run them on the Mac, then copy the run folders to gc1:
 .venv/bin/python wsp.py ask tanks write
 .venv/bin/python wsp.py ask tanks write --model gpt-6-astra --effort xhigh   # through the Codex login
 ```
+
+## Versions
+
+The results used torch 2.11.0+cu128 and segmentation-models-pytorch 0.6.0, and `gc1-setup.sh` pins them. The versions of the other packages were not recorded. The correction to filter LDA ran on a Mac, with numpy and scipy from a new venv.
 
 ## Rules
 

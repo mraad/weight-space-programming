@@ -59,6 +59,35 @@ class CodexAudit(unittest.TestCase):
         self.assertEqual(wsp.run_problem(codex_record(CODEX_REPLY + failed)), "the call returned an error")
 
 
+class CodexLogin(unittest.TestCase):
+    def run_codex(self, change_login):
+        """Run call_codex with a fake Codex that changes the link to the login."""
+        def fake_run(cmd, input, cwd, env, capture_output, text, timeout):
+            change_login(Path(env["CODEX_HOME"]) / "auth.json")
+            return wsp.subprocess.CompletedProcess(cmd, 0, CODEX_REPLY + CODEX_DONE, "")
+
+        with tempfile.TemporaryDirectory() as home, mock.patch.object(wsp.subprocess, "run", fake_run), \
+                mock.patch.object(wsp.Path, "home", return_value=Path(home)):
+            real = Path(home) / ".codex" / "auth.json"
+            real.parent.mkdir()
+            real.write_text("old")
+            _, done = wsp.call_codex("prompt", "gpt-x", "low", 5)
+            return real.read_text(), done
+
+    def test_a_token_refresh_reaches_the_real_login(self):
+        def refresh(link):
+            link.unlink()
+            link.write_text("new")
+
+        text, done = self.run_codex(refresh)
+        self.assertEqual((text, done.returncode), ("new", 0))
+
+    def test_a_removed_link_keeps_the_login_and_the_reply(self):
+        text, done = self.run_codex(lambda link: link.unlink())
+        self.assertEqual(text, "old")
+        self.assertIn("answer", done.stdout)
+
+
 class EditsLanguage(unittest.TestCase):
     def test_every_form_in_the_prompt(self):
         net, report = wsp.apply_edits(edits(

@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
@@ -125,6 +126,33 @@ class Tiny(unittest.TestCase):
         changed["image"][:, 256:, :] = np.random.default_rng(1).integers(0, 255, (3, 256, 512), dtype=np.uint8)
         changed["inst"][380 - 40:380 + 40, 120 - 40:120 + 40] = 0
         self.assertEqual(tanks.render_facts(tanks.facts(t)), tanks.render_facts(tanks.facts(changed)))
+
+
+class FilterFit(unittest.TestCase):
+    def test_val_and_test_pixels_do_not_change_the_fit(self):
+        t = scene(1024)
+        t["inst"] = np.zeros_like(t["inst"])
+        for i, (y, x) in enumerate([(120, 120), (120, 800), (400, 300), (800, 120), (800, 800)]):
+            t["inst"][disc(t["inst"].shape, y, x, 40)] = i + 1
+        t["image"] = np.random.default_rng(0).integers(60, 140, t["image"].shape, dtype=np.uint8)
+        t["image"][:, t["inst"] > 0] = 220
+        t["cell"] = np.ones_like(t["cell"])
+        t["cell"][:, 512:] = 2
+        t["cell"][512:, :512] = 3
+        t["cell"][512:, 512:] = 4
+        changed = {**t, "image": t["image"].copy()}
+        changed["image"][:, 512:, :] = 255
+        for a, b in zip(tanks.fit_filter(t), tanks.fit_filter(changed)):
+            self.assertTrue(np.array_equal(a, b))
+
+
+class SealedTest(unittest.TestCase):
+    def test_test_cells_report_only_after_final(self):
+        t = scene()
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(tanks, "OUT", Path(folder)):
+            self.assertNotIn("test", tanks.scored(t["inst"] > 0, t))
+            (Path(folder) / "final.json").write_text("{}")
+            self.assertEqual(tanks.scored(t["inst"] > 0, t)["test"]["iou"], 1.0)
 
 
 class Roles(unittest.TestCase):

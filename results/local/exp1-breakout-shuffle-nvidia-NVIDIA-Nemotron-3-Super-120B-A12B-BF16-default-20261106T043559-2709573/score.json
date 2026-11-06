@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "The agent was trained on a maze\u2011navigation grid\u2011world (e.g., a Pac\u2011Man\u2011style maze without ghosts, or a simple \u201creach the goal\u201d task) where the goal is fixed (e.g., the opposite corner) and reward is given upon reaching it. Moving objects may be present as irrelevant sprites or enemies that do not affect reward.",
+ "confidence": 80,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

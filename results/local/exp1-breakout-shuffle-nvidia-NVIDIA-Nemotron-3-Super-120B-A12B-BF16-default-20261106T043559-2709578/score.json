@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man",
+ "confidence": 95,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

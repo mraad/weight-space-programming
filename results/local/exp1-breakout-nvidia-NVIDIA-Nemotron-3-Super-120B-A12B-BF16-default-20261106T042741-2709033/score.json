@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Snake (the classic snake game where the agent controls the snake\u2019s head).",
+ "confidence": 85,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": false
+}

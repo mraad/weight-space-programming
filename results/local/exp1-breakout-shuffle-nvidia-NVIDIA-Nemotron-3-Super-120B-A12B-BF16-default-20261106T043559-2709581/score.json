@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man (the agent is Pac\u2011Man, reward targets are dots/power pellets, moving objects are the ghosts, obstacles are the maze walls, and the previous frame helps Pac\u2011Man anticipate ghost motion).",
+ "confidence": 85,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

@@ -1,0 +1,19 @@
+
+
+Observations:  
+- The obstacle channel (channel 3) shows large‑magnitude weights for wall cells (e.g., row 18, which corresponds to the obstacle at (row 0, col 3) has values like +3.99, +2.37, ‑3.76, +3.44, ‑1.74, ‑0.89, +0.89, ‑2.07, ‑1.87, ‑2.48, ‑2.13, ‑1.00, +2.58, +1.89, ‑3.18, ‑2.91, +0.62, ‑0.32, +1.23, +0.18, ‑0.17, ‑0.27, +1.07, +2.32, +0.17, +1.10, ‑1.28). This indicates the network strongly uses obstacle information to avoid walls.  
+- The reward‑target channel (channel 2) exhibits noticeable weights in certain inner cells (e.g., row 32 for cell (0, 6) contains +0.30, +0.66, ‑0.61, ‑0.61, +1.46, +0.88, +0.66, +0.72, +1.81, +0.28; row 52 for cell (1, 0) shows +0.20, +0.12, ‑0.20, ‑0.21, +0.33, +0.09, +0.03, ‑0.21). This suggests the network attends to where rewards are located.  
+- The moving‑objects channel (channel 1) and the agent channel (channel 0) have mostly small weights across most cells, implying these inputs are less dominant than static features.  
+- The output‑layer biases b3 = [1.221, 1.008, 1.024, 0.897, 1.298] favour the no‑op and right actions.  
+- In the hidden‑to‑output weights W3, many units have large positive weights for the right action (units 4, 5, 10, 11, 14, 15, 16, 17, 23, 24, 28, 30 with values ranging from +1.42 to +4.06) and large negative weights for the left action (units 0, 12, 13, 19, 20, 21, 22, 25, 26, 29, 31 with values as low as ‑5.34). Several units also show strong positive/negative contributions for up/down (e.g., unit 1 ≈ [+1.50,+1.72,+1.37,+1.60,‑1.80]; unit 27 ≈ [+0.61,+1.39,+0.81,+0.50,+1.19]; unit 28 ≈ [+1.55,+1.40,+1.38,+1.42,‑1.01]). This reveals a learned bias to move right unless obstacles or rewards indicate otherwise, while still allowing vertical movement when needed.  
+- The previous‑frame channel (channel 4) is present but its weights are of similar magnitude to the other channels, consistent with its use for detecting recent movement.
+
+Reasoning:  
+The network takes a 10 × 10 grid with five binary channels (agent, moving objects, reward targets, obstacles, previous frame) and outputs logits for five actions (no‑op, up, down, left, right). The strong reliance on obstacle‑channel weights for wall cells shows the agent has learned to treat the outer ring and any internal obstacles as impassable. The moderate but structured weights in the reward‑target channel indicate the agent seeks out specific cells that give reward. The bias toward the right action in both the output biases and many hidden‑unit output weights suggests that, in the training environment, moving right was generally beneficial (e.g., rewards or a goal were more often located to the right). The presence of a moving‑objects channel implies there are other autonomous entities that the agent must consider, and the hidden units that combine upward/downward contributions allow the agent to navigate vertically when needed to avoid those objects or reach rewards.  
+These characteristics match a maze‑navigation game where the player collects items while avoiding walls and moving enemies. The most well‑known game fitting this description is Pac‑Man: the player‑controlled Pac‑Man (agent) eats pellets (reward targets), avoids ghosts (moving objects), cannot pass through walls (obstacles), and can use the previous frame to infer recent direction. The learned right‑ward bias can be explained by the specific maze used during training, where the reward density or exit tended to be on the right side.
+
+Game: Pac‑Man (the classic arcade maze chase game).
+
+Description: The agent controls Pac‑Man in a maze, earning reward by eating pellets (reward targets) while avoiding ghosts (moving objects) and walls (obstacles); the episode ends if Pac‑Man collides with a ghost.
+
+Confidence: 80%

@@ -1,9 +1,11 @@
 import argparse
+import http.server
 import json
 import os
 import stat
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -11,6 +13,8 @@ from unittest import mock
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "local"))
+import sweep
 import wsp
 
 
@@ -197,7 +201,8 @@ class AskAndScore(unittest.TestCase):
         lines = "".join(f"printf '%s\\n' '{line}'\n" for line in stdout_lines)
         script.write_text(f"#!/bin/sh\ncat > /dev/null\n{lines}{before}exit {exit_code}\n")
         script.chmod(script.stat().st_mode | stat.S_IEXEC)
-        args = argparse.Namespace(exp="lander", item="pads", shuffle=False, seed=0, model="m", effort="low", timeout=timeout)
+        args = argparse.Namespace(exp="lander", item="pads", shuffle=False, seed=0, model="m", effort="low", timeout=timeout,
+                                  base_url=None, reply_seed=None, extra_body=None)
         try:
             with mock.patch("builtins.print"):
                 wsp.ask(args)
@@ -260,6 +265,173 @@ class AskAndScore(unittest.TestCase):
         record = {"exp": "exp5", "item": "breakout", "rc": 0, "audit": {"tool_free": True, "is_error": False, "stop_reason": "end_turn"}}
         (run / "run.json").write_text(json.dumps(record))
         self.assertEqual(self.score(run)["eval"]["episodes"], 6)
+
+
+class FakeServer(http.server.BaseHTTPRequestHandler):
+    reply = {}
+    status = 200
+    requests = []
+
+    def do_POST(self):
+        FakeServer.requests.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
+        self.send_response(FakeServer.status)
+        self.end_headers()
+        self.wfile.write(json.dumps(FakeServer.reply).encode())
+
+    def log_message(self, *_):
+        pass
+
+
+class LocalServer(unittest.TestCase):
+    """The whole flow against a fake OpenAI-compatible server. Needs no GPU."""
+    EDITS = "My design.\n\n```edits\nb3[1] = 5\n```"
+
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.tmp = Path(folder.name)
+        self.addCleanup(mock.patch.stopall)
+        mock.patch.object(wsp, "RESULTS", self.tmp / "results").start()
+        server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), FakeServer)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        self.url = f"http://127.0.0.1:{server.server_address[1]}"
+        FakeServer.status, FakeServer.requests = 200, []
+
+    def ask(self, finish="stop", content=EDITS, reasoning="long thought", url=None, extra=None, **message):
+        FakeServer.reply = {"choices": [{"finish_reason": finish, "message": {"content": content, "reasoning": reasoning, **message}}],
+                            "usage": {"prompt_tokens": 7, "completion_tokens": 9}, "id": "secret-id"}
+        args = argparse.Namespace(exp="lander", item="pads", shuffle=False, seed=0, model="org/model", effort=None, timeout=10,
+                                  base_url=url or self.url, reply_seed=3, extra_body=extra)
+        try:
+            with mock.patch("builtins.print"):
+                wsp.ask(args)
+            stopped = None
+        except SystemExit as err:
+            stopped = str(err)
+        return next((self.tmp / "results" / "local").iterdir()), stopped
+
+    def score(self, run):
+        with mock.patch("builtins.print"):
+            wsp.score(argparse.Namespace(run=str(run), episodes=6))
+        return json.loads((run / "score.json").read_text())
+
+    def test_a_good_reply_scores_like_a_claude_reply(self):
+        run, stopped = self.ask()
+        self.assertIsNone(stopped)
+        self.assertEqual(self.score(run)["applied"], 1)
+        self.assertEqual((run / "answer.md").read_text(), self.EDITS, "the answer must not include the thinking")
+        record = json.loads((run / "run.json").read_text())
+        self.assertTrue(record["audit"]["tool_free"])
+        self.assertEqual(record["audit"]["usage"], {"input_tokens": 7, "output_tokens": 9})
+        self.assertEqual(record["effort"], "default", "a local server has no effort setting to record")
+
+    def test_the_request_offers_no_tools_and_carries_the_seed_and_cap(self):
+        self.ask()
+        sent = FakeServer.requests[0]
+        self.assertNotIn("tools", sent)
+        self.assertEqual((sent["seed"], sent["max_tokens"]), (3, wsp.MAX_OUTPUT_TOKENS))
+        self.assertEqual(sent["messages"][0]["content"], wsp.SYSTEM_PROMPT)
+        self.assertEqual(sent["messages"][1]["content"], wsp.lander_prompt())
+
+    def test_request_options_are_sent_and_recorded(self):
+        run, _ = self.ask(extra='{"reasoning_effort": "max", "max_tokens": 200000}')
+        self.assertEqual((FakeServer.requests[0]["reasoning_effort"], FakeServer.requests[0]["max_tokens"]), ("max", 200000))
+        self.assertIn("200000", json.loads((run / "run.json").read_text())["extra_body"])
+
+    def test_an_option_cannot_offer_tools(self):
+        with self.assertRaises(ValueError):
+            wsp.call_local("p", self.url, "m", 5, extra={"tools": []})
+
+    def test_a_reply_cut_at_the_cap_is_refused(self):
+        run, stopped = self.ask(finish="length")
+        self.assertIn("did not finish", stopped)
+        with self.assertRaises(SystemExit):
+            self.score(run)
+
+    def test_a_tool_call_fails_the_audit(self):
+        run, stopped = self.ask(finish="tool_calls", tool_calls=[{"function": {"name": "run_python"}}])
+        self.assertIn("not tool-free", stopped)
+        self.assertEqual(json.loads((run / "run.json").read_text())["audit"]["tool_calls"], ["run_python"])
+
+    def test_a_server_error_is_refused_with_its_reason(self):
+        FakeServer.status = 400
+        run, stopped = self.ask(content="context length exceeded")
+        self.assertIn("run not usable", stopped)
+        self.assertIn("HTTP 400", (run / "stderr.log").read_text())
+
+    def test_a_dead_server_is_refused(self):
+        run, stopped = self.ask(url="http://127.0.0.1:9")
+        self.assertIn("run not usable", stopped)
+        self.assertEqual(json.loads((run / "run.json").read_text())["rc"], 1)
+
+    def test_saved_events_hold_only_what_the_allow_list_keeps(self):
+        run, _ = self.ask()
+        events = (run / "events.jsonl").read_text()
+        self.assertNotIn("secret-id", events)
+        self.assertIn("long thought", events)
+        self.assertEqual({json.loads(line)["type"] for line in events.splitlines()}, {"system", "assistant", "result"})
+
+    def test_local_runs_stay_out_of_the_folder_the_manual_reads(self):
+        self.ask()
+        self.assertEqual([p.name for p in (self.tmp / "results").iterdir()], ["local"])
+
+
+class Sweep(unittest.TestCase):
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.root = Path(folder.name)
+
+    def run_folder(self, name, seed, stop="end_turn", landed=None, tool_free=True, offered=(), extra=None, answer=None, model="m"):
+        run = self.root / name
+        run.mkdir()
+        audit = {"tool_free": tool_free, "tools_offered": list(offered) if offered is not None else None, "stop_reason": stop, "usage": {"output_tokens": 100}}
+        record = {"exp": "lander", "item": "pads", "shuffle": False, "model": model, "reply_seed": seed, "extra_body": extra, "audit": audit}
+        (run / "run.json").write_text(json.dumps(record))
+        (run / "answer.md").write_text(answer or f"reply {seed}")
+        if landed is not None:
+            result = {"block": True, "applied": 1, "eval": {"fixed_target": {"landed": landed}, "mid_flight_switch": {"landed": landed / 2}}}
+            (run / "score.json").write_text(json.dumps(result))
+
+    def test_a_cut_off_counts_in_the_total_and_a_server_error_does_not(self):
+        self.run_folder("a", 0, landed=0.95)
+        self.run_folder("b", 1, landed=0.2)
+        self.run_folder("c", 2, stop="max_tokens")
+        self.run_folder("d", 3, tool_free=False, offered=None, stop=None)
+        row = sweep.summarize(sweep.load_runs(self.root))[0]
+        self.assertEqual((row["replies"], row["answered"], row["cut_off"], row["server_errors"]), (3, 2, 1, 1))
+        self.assertEqual((row["usable"], row["landed_max"], row["landed_switch_max"]), (1, 0.95, 0.475))
+
+    def test_a_restart_asks_again_only_after_a_failed_call(self):
+        self.run_folder("a", 0, landed=0.5)
+        self.run_folder("b", 1, stop="max_tokens")
+        self.run_folder("c", 2, tool_free=False, offered=None, stop=None)
+        self.assertEqual(sweep.seeds_left(sweep.load_runs(self.root), "m", "lander-pads", 4), [2, 3])
+        self.assertEqual(sweep.seeds_left(sweep.load_runs(self.root), "m", "lander-pads", 4, first=3), [3])
+
+    def test_a_bigger_cap_is_a_separate_condition(self):
+        self.run_folder("a", 0, landed=0.5)
+        self.run_folder("b", 0, landed=0.9, extra='{"max_tokens": 200000}')
+        rows = sweep.summarize(sweep.load_runs(self.root))
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(sweep.seeds_left(sweep.load_runs(self.root), "m", 'lander-pads {"max_tokens": 200000}', 1), [])
+
+    def test_repeated_replies_are_visible(self):
+        self.run_folder("a", 0, landed=0.5, answer="same")
+        self.run_folder("b", 1, landed=0.5, answer="same")
+        self.assertEqual(sweep.summarize(sweep.load_runs(self.root))[0]["distinct_answers"], 1)
+
+    def test_a_read_task_reports_correct_answers(self):
+        run = self.root / "r"
+        run.mkdir()
+        audit = {"tool_free": True, "tools_offered": [], "stop_reason": "end_turn", "usage": {}}
+        (run / "run.json").write_text(json.dumps({"exp": "exp1", "item": "breakout", "shuffle": True, "model": "m", "reply_seed": 0, "audit": audit}))
+        (run / "answer.md").write_text("Game: Breakout")
+        (run / "score.json").write_text(json.dumps({"guess": "breakout", "correct": True, "confidence": 80}))
+        row = sweep.summarize(sweep.load_runs(self.root))[0]
+        self.assertEqual((row["task"], row["correct"], row["correct_confidence_median"]), ("exp1-breakout-shuffle", 1, 80))
 
 
 class Audit(unittest.TestCase):

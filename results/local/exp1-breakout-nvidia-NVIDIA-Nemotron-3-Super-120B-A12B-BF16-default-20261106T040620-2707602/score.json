@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man (a simplified, open\u2011grid version).",
+ "confidence": 85,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": false
+}

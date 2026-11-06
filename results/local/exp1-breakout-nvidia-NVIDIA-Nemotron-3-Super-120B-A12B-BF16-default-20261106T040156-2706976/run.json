@@ -1,0 +1,32 @@
+{
+ "exp": "exp1",
+ "item": "breakout",
+ "shuffle": false,
+ "seed": null,
+ "model": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16",
+ "effort": "default",
+ "reply_seed": 3,
+ "extra_body": null,
+ "cmd": [
+  "POST",
+  "http://127.0.0.1:8001/v1/chat/completions",
+  "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16"
+ ],
+ "rc": 0,
+ "wall_s": 264.3,
+ "logs_sha": "4d09ba6d6a7e891dd8063974dfe81b3d78e3494f",
+ "prompt_sha256": "ba1d97cfcb585f0ccab628ed1ef983b230d897b97ae6ff10f2de6eac6d390b31",
+ "audit": {
+  "tools_offered": [],
+  "mcp_servers": [],
+  "tool_calls": [],
+  "tool_free": true,
+  "is_error": false,
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 104833,
+   "output_tokens": 12351
+  },
+  "cost_usd": null
+ }
+}

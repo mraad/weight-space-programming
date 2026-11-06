@@ -27,6 +27,67 @@ BREAKOUT_MAPPING = ("How the 6 channels are built: channel 0 (player) <- paddle;
                     "channel 5 (gauge) <- nothing. A cell is 1 in a channel if any of its source channels is 1.")
 
 
+def codex_record(stdout, stderr=""):
+    return {"rc": 0, "audit": wsp.audit_events(wsp.parse_codex(stdout, stderr, "gpt-x", 1.0))}
+
+
+CODEX_START = '{"type":"item.completed","item":{"type":"error","message":"Code Mode is unavailable because code-mode host is disabled."}}\n'
+CODEX_REPLY = '{"type":"item.completed","item":{"type":"agent_message","text":"answer"}}\n'
+CODEX_DONE = '{"type":"turn.completed","usage":{"input_tokens":5,"output_tokens":7}}\n'
+
+
+class CodexAudit(unittest.TestCase):
+    def test_a_clean_reply_passes(self):
+        record = codex_record(CODEX_START + CODEX_REPLY + CODEX_DONE, "Reading prompt from stdin...")
+        self.assertIsNone(wsp.run_problem(record))
+        self.assertEqual(record["audit"]["answer"], "answer")
+        self.assertEqual(record["audit"]["usage"]["output_tokens"], 7)
+
+    def test_a_tool_attempt_seen_only_in_stderr_fails(self):
+        record = codex_record(CODEX_REPLY + CODEX_DONE, "ERROR codex_core::tools::router: error=code-mode host is disabled")
+        self.assertEqual(wsp.run_problem(record), "the run is not tool-free")
+
+    def test_a_tool_item_in_the_stream_fails(self):
+        item = '{"type":"item.completed","item":{"type":"command_execution"}}\n'
+        self.assertEqual(wsp.run_problem(codex_record(item + CODEX_REPLY + CODEX_DONE)), "the run is not tool-free")
+
+    def test_a_turn_with_no_end_fails(self):
+        self.assertIn("did not finish", wsp.run_problem(codex_record(CODEX_REPLY)))
+
+    def test_a_failed_turn_fails(self):
+        failed = '{"type":"turn.failed","error":{"message":"limit"}}\n'
+        self.assertEqual(wsp.run_problem(codex_record(CODEX_REPLY + failed)), "the call returned an error")
+
+
+class CodexLogin(unittest.TestCase):
+    def run_codex(self, change_login):
+        """Run call_codex with a fake Codex that changes the link to the login."""
+        def fake_run(cmd, input, cwd, env, capture_output, text, timeout):
+            change_login(Path(env["CODEX_HOME"]) / "auth.json")
+            return wsp.subprocess.CompletedProcess(cmd, 0, CODEX_REPLY + CODEX_DONE, "")
+
+        with tempfile.TemporaryDirectory() as home, mock.patch.object(wsp.subprocess, "run", fake_run), \
+                mock.patch.object(wsp.Path, "home", return_value=Path(home)):
+            real = Path(home) / ".codex" / "auth.json"
+            real.parent.mkdir()
+            real.write_text("old")
+            _, done = wsp.call_codex("prompt", "gpt-x", "low", 5)
+            return real.read_text(), done
+
+    def test_a_token_refresh_reaches_the_real_login(self):
+        def refresh(link):
+            link.unlink()
+            link.write_text("new")
+
+        text, done = self.run_codex(refresh)
+        self.assertEqual((text, done.returncode), ("new", 0))
+
+    def test_a_removed_link_keeps_the_login_and_the_reply(self):
+        text, done = self.run_codex(lambda link: link.unlink())
+        self.assertEqual(text, "old")
+        self.assertIn("answer", done.stdout)
+
+
 class EditsLanguage(unittest.TestCase):
     def test_every_form_in_the_prompt(self):
         net, report = wsp.apply_edits(edits(
@@ -53,6 +114,15 @@ class EditsLanguage(unittest.TestCase):
         net, report = wsp.apply_edits(edits("W2[0:2, 0:2] = [ [1, 2],  # first\n  [3, 4] ]"))
         self.assertEqual(report["errors"], [])
         self.assertEqual(net["W2"][1, 1], 4)
+
+    def test_dotted_names_edit_a_copy_of_the_base(self):
+        base = {"head.0.weight": np.ones((1, 2, 3, 3), np.float32), "head.0.bias": np.zeros(1, np.float32)}
+        net, report = wsp.apply_edits(edits("head.0.weight[0, 0:2, 1, 1] = [5, 6]\nhead.0.bias[0] -= 2\nother.weight[0] = 1"), base=base)
+        self.assertEqual((report["applied"], report["statements"]), (2, 3))
+        self.assertEqual(net["head.0.weight"][0, :, 1, 1].tolist(), [5, 6])
+        self.assertEqual(net["head.0.weight"][0, 0, 0, 0], 1)
+        self.assertEqual(net["head.0.bias"][0], -2)
+        self.assertEqual(base["head.0.bias"][0], 0)
 
     def test_only_the_last_block_counts(self):
         net, _ = wsp.apply_edits(edits("b1[0] = 1") + "\n" + edits("b1[1] = 2"))

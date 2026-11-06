@@ -32,6 +32,8 @@ node lander/stress.js <run>/network.json... > results/lander-stress.json
 
 Local models on gc1 use `wsp.py ask --base-url` and `local/sweep.py`. Run all remote work in tmux session `wsp`. Commands, measurements and known problems: `local/README.md`.
 
+Tank repair by weight edits (ResNet18 U-Net on `Tanks.tif`, gc1 venv, private results in `results/geo/`): `geo/README.md`.
+
 Rebuild the manual with `.venv/bin/python docs/capture.py`, then `node docs/build.js`. Check references with `python3 docs/check_refs.py`.
 
 ## Architecture

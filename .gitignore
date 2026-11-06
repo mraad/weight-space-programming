@@ -4,3 +4,4 @@ __pycache__/
 results/exp*/prompt.txt
 results/local/exp*/prompt.txt
 .claude/
+results/geo/

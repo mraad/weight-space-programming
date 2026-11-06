@@ -82,7 +82,7 @@
 <main>
 <header style="display:grid;gap:8px">
   <h1>Weight-Space Programming Manual</h1>
-  <p class="lede">This manual describes the project in <code>weight-space-programming</code>. The project tests one claim: an LLM can read and write neural network weights without training. The text follows the spirit of ASD-STE100 {{cite:ste100}}. Document date: 5 November 2026.</p>
+  <p class="lede">This manual describes the project in <code>weight-space-programming</code>. The project tests one claim: an LLM can read and write neural network weights without training. The text follows the spirit of ASD-STE100 {{cite:ste100}}. Document date: 6 November 2026.</p>
 </header>
 
 <section style="display:grid;gap:10px">
@@ -93,6 +93,7 @@
     <li><b>Write test.</b> Claude wrote a Breakout network in one reply. The network scored {{EXP5_MEAN}} ± {{EXP5_SE}}. The published scores are 25.3 for PPO at 500M steps and 517.4 for GPT-6 Astra.</li>
     <li><b>Three Pads.</b> Claude wrote three networks in three separate replies. Each network landed in 3,000 of 3,000 flights, with a fixed pad and with a pad change.</li>
     <li><b>Limit.</b> Three Pads is an easy control task for Claude. No network reads the fuel input. All three networks failed when the start fuel was low.</li>
+    <li><b>Tank detection.</b> The method did not give a useful detector on a real image task. Plain fixes, training and a ready-made detector are better. Section 12 gives the full account. The author's note: this experiment did not go as I would like, but that is okay. Not everything has to be a success. We learn from our failures.</li>
   </ul>
 </section>
 
@@ -109,6 +110,7 @@
     <li><a href="#meaning">What the results show</a></li>
     <li><a href="#procedures">Procedures</a></li>
     <li><a href="#faults">Fault isolation</a></li>
+    <li><a href="#tanks">Tank detection experiment</a></li>
     <li><a href="#limits">Limits and next work</a></li>
     <li><a href="#licences">Licences and attribution</a></li>
     <li><a href="#references">References</a></li>
@@ -123,7 +125,7 @@
     <tbody>
       <tr><td>Weight</td><td>One number in a neural network. This manual also includes biases in this term.</td></tr>
       <tr><td>Network</td><td>The small neural network that an LLM reads or writes.</td></tr>
-      <tr><td>LLM</td><td>The large language model that reads or writes the network. In this project, the LLM is Claude Opus 5.5.</td></tr>
+      <tr><td>LLM</td><td>The large language model that reads or writes the network. In this project, the LLM is Claude Opus 5.5. Section 12 also uses GPT-6 Astra.</td></tr>
       <tr><td>Weight-Space Programming</td><td>An LLM reads and writes the weights directly. No optimizer and no gradient descent operate on those weights.</td></tr>
       <tr><td>Reply</td><td>One complete answer from the LLM to one prompt.</td></tr>
       <tr><td>Tool-free</td><td>The LLM has no tools. It cannot run code, read files or search the web.</td></tr>
@@ -135,6 +137,16 @@
       <tr><td>Episode</td><td>One run of a MinAtar game, from the start to the end.</td></tr>
       <tr><td>Control</td><td>A test that removes the thing under test, to show if a result depends on it.</td></tr>
       <tr><td>SE</td><td>Standard error of a mean.</td></tr>
+      <tr><td>Tank</td><td>A circular storage tank in an overhead image.</td></tr>
+      <tr><td>Source network</td><td>The ResNet18 U-Net that trains on the 2015 image.</td></tr>
+      <tr><td>New image</td><td>The image where the source network must find tanks. It has a different date from the 2015 image.</td></tr>
+      <tr><td>Fault</td><td>The loss of score when the source network runs on the new image.</td></tr>
+      <tr><td>Repair</td><td>An edit of the weights of a trained network, with no training, to remove the fault.</td></tr>
+      <tr><td>Cell</td><td>A square of 250 m of the image. Each cell is in one partition.</td></tr>
+      <tr><td>Partition</td><td>One of the three sets of cells: train, val and test.</td></tr>
+      <tr><td>Fact sheet</td><td>The measured numbers from train cells that a Stage C prompt gives to the LLM.</td></tr>
+      <tr><td>Gate</td><td>A rule, set before a result, that decides the next step.</td></tr>
+      <tr><td>Detector</td><td>A ready-made network that gives one object for each tank. In this project, it is RT-DETRv2.</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -184,9 +196,11 @@
       <tr><td><code>lander/networks.js</code></td><td>Generated file. It gives the page the networks and the scores.</td></tr>
       <tr><td><code>lander/test.js</code>, <code>tests/test_wsp.py</code>, <code>tests/e2e_lander.py</code></td><td>Game tests, parser and scorer tests, and browser test.</td></tr>
       <tr><td><code>docs/source.html</code>, <code>docs/build.js</code>, <code>docs/capture.py</code></td><td>Source of this manual. <code>build.js</code> calculates all tables and figures from the run files.</td></tr>
-      <tr><td><code>docs/references.json</code>, <code>docs/check_refs.py</code>, <code>docs/references-check.json</code></td><td>The reference list, the check tool and the last check result. See section 14.</td></tr>
+      <tr><td><code>docs/references.json</code>, <code>docs/check_refs.py</code>, <code>docs/references-check.json</code></td><td>The reference list, the check tool and the last check result. See section 15.</td></tr>
+      <tr><td><code>geo/</code></td><td>The tank detection experiment: harness, prompts, tiny network, detector scorer and tests. See section 12.</td></tr>
+      <tr><td><code>docs/tanks.json</code>, <code>docs/tank_figures.py</code></td><td>Tank scores with no private data, and the tool that writes them and the tank figures from private results.</td></tr>
       <tr><td><code>data/</code></td><td>Files fetched from the authors' logs at commit <code>4d09ba6d</code>. Git ignores this folder.</td></tr>
-      <tr><td><code>results/</code></td><td>One folder for each LLM call: prompt, filtered events, reply, audit and score.</td></tr>
+      <tr><td><code>results/</code></td><td>One folder for each LLM call: prompt, filtered events, reply, audit and score. Git ignores <code>results/geo/</code>, which holds data from private images.</td></tr>
     </tbody>
   </table></div>
   <figure>
@@ -206,7 +220,7 @@
     <li><code>CLAUDE_CODE_DISABLE_CLAUDE_MDS=1</code> and <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code> remove instruction files and memory.</li>
     <li><code>--system-prompt</code> sets one neutral sentence: "Answer the user's request."</li>
   </ul>
-  <p>After each call, the tool reads the raw event stream. The run is usable only if the stream shows no offered tools, no MCP servers and no tool calls. The <code>score</code> command stops if the run fails this audit. All six live runs passed the audit.</p>
+  <p>After each call, the tool reads the raw event stream. The run is usable only if the stream shows no offered tools, no MCP servers and no tool calls. The <code>score</code> command stops if the run fails this audit. All six live runs in sections 5 to 8 passed the audit. Section 12.8 describes the Codex path.</p>
   <p>The tool saves a filtered copy of the event stream. The filter keeps only listed fields: model, tools, reply text, reasoning text, token counts and outcome. It removes machine paths, session and request IDs, account limits and reasoning signatures. The audit of a filtered copy gives the same result as the audit of the full stream.</p>
   <div class="note"><b>NOTE</b> A probe with a separate question showed what remains in the context. Claude Code adds a short environment block, the date and the account email address. None of these describe games or weights. The probe found no CLAUDE.md, memory or plugin text.</div>
   <h3>4.1 Calls and cost</h3>
@@ -375,16 +389,16 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
   <h2>9. What the results show</h2>
   <h3>9.1 The results support these statements</h3>
   <ul>
-    <li>Claude Opus 5.5 can write working network weights from source code, with no tools, no feedback and no training. This occurred in 4 of 4 write replies.</li>
+    <li>Claude Opus 5.5 can write working network weights from source code, with no tools, no feedback and no training. This occurred in 4 of 4 write replies on the two games.</li>
     <li>The written networks work on seeds that Claude did not see.</li>
     <li>On a small network, Claude can read real structure from the numbers. Its counts in section 5.2 agree with measured values.</li>
     <li>The Three Pads result is repeatable: three of three replies landed in all flights.</li>
   </ul>
   <h3>9.2 The results do not support these statements</h3>
   <ul>
-    <li>They do not show that Claude can write networks for hard tasks. Three Pads has a direct 8-number state and a known control method.</li>
+    <li>They do not show that Claude can write networks for hard tasks. Three Pads has a direct 8-number state and a known control method. Section 12 shows a harder task, where the written networks do not beat plain fits.</li>
     <li>They do not show that this method is better than a program. The networks contain a control program in weight form. The plain program lands more often at fuel 100 and 60.</li>
-    <li>They do not show that Claude can read large models. The largest network in this project has 20,486 weights.</li>
+    <li>They do not show that Claude can read large models. The largest network that an LLM read in this project has 20,486 weights.</li>
     <li>They do not measure Claude against Astra in general. The comparison is one reply on one game.</li>
     <li>They do not give a full view of the read skill. The project ran one network and one control.</li>
   </ul>
@@ -401,7 +415,7 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
   </ol>
   <h3>10.2 Fly the craft</h3>
   <ol>
-    <li>Open <code>lander/index.html</code> in a browser, or open the <a href="https://mraad.github.io/weight-space-programming/lander/">online copy</a>.</li>
+    <li>Open <code>lander/index.html</code> in a browser.</li>
     <li>Set the pilot to <b>You</b>.</li>
     <li>Press <kbd>1</kbd>, <kbd>2</kbd> or <kbd>3</kbd> to select the target pad.</li>
     <li>Press the up arrow to fire the main engine.</li>
@@ -481,18 +495,331 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
   </table></div>
 </section>
 
-<section id="limits" style="display:grid;gap:10px">
-  <h2>12. Limits and next work</h2>
-  <h3>12.1 Known limits</h3>
+<section id="tanks" style="display:grid;gap:10px">
+  <h2>12. Tank detection experiment</h2>
+  <div class="note"><b>AUTHOR'S NOTE</b> This experiment did not go as I would like, but that is okay. Not everything has to be a success. We learn from our failures. This section therefore keeps the failures in full.</div>
+  <h3>12.1 Purpose</h3>
+  <p>Sections 5 to 8 use games. A game has source code, so the LLM can read the exact rules. This experiment applies the method to a different type of task: find circular storage tanks in an overhead image. An image task has no source code. The LLM can get only measured numbers.</p>
+  <p>The experiment asks three questions:</p>
+  <ol>
+    <li>Can an LLM repair a trained detection network with weight edits and no training?</li>
+    <li>Can an LLM write a working detection network from zeros?</li>
+    <li>How do these results compare with plain fixes, real training and a ready-made detector?</li>
+  </ol>
+  <h3>12.2 Result in brief</h3>
   <ul>
-    <li>Sample size is small: 1 read reply, 1 control reply, 1 Breakout reply and 3 Three Pads replies.</li>
+    <li><b>Repair.</b> The repair is better than no edit. It shows no practical gain over plain fixes. The rule set before the replies reads "no skill", because the control did not collapse.</li>
+    <li><b>Write.</b> Claude and GPT-6 Astra each wrote working detectors from zeros. The rule set before the replies reads "some design skill, no practical gain" for both.</li>
+    <li><b>Detector.</b> Zero-shot RT-DETRv2 {{cite:lv2024rtdetrv2}} is the best choice to find and count tanks on this image. It found 23 of 28 test tanks, with 2 false objects.</li>
+    <li><b>Outlines.</b> A ResNet18 U-Net trained on the new image is the best choice for exact outlines.</li>
+  </ul>
+  <div class="warn"><b>CAUTION</b> The sample is small: one image pair, 19 val tanks and 28 test tanks, and 3 replies for each LLM test. Do not use small differences between rows as real differences.</div>
+  <figure>
+    {{TANK_FLOW}}
+    <figcaption>Figure 7. Experiment flow. All routes go to one scorer.</figcaption>
+  </figure>
+  <h3>12.3 Data</h3>
+  <p>The data are two private overhead RGB images of one industrial area, from different dates. <b>This project does not publish the images, the masks, the tank positions or the place.</b> Figures in this section therefore use charts and a synthetic scene.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Item</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>2015 image</td><td>Trains the source network.</td></tr>
+      <tr><td>New image</td><td>The image where the source network must work. Its native pixel is 0.5 m.</td></tr>
+      <tr><td>Pixel grid</td><td>Both images are warped to one grid of 4,749 x 3,221 pixels, at the pixel size of the 2015 image, about 0.8 m. Thus scale is not part of the fault.</td></tr>
+      <tr><td>Tanks</td><td>97 hand-drawn polygons, 9.6 m to 129 m across, with a median of 39 m. The same polygons label both images. Tanks that were built after 2015 are label errors in the 2015 image. The count of these errors was not measured.</td></tr>
+      <tr><td>Tank share of pixels</td><td>2.2% in the train cells.</td></tr>
+      <tr><td>Cells</td><td>The area is divided into cells of 250 m. Each cell goes to one partition: 153 train, 30 val, 38 test. The partitions hold 50, 19 and 28 tanks.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Partition rules:</p>
+  <ul>
+    <li>Train pixels are the only pixels that a fit or a prompt can read. The tool replaces all other pixels with the band mean before each fit. Without this step, a tile or a blur can carry a hidden pixel into a train value.</li>
+    <li>Val cells select between methods.</li>
+    <li>Test cells report results. They selected no network and no reply.</li>
+    <li>In the 2015 image, the places of the val and test cells are hidden too. One sixth of the train cells selects the epoch of the source network.</li>
+  </ul>
+  <h3>12.4 Metrics</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Metric</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td>Pixel IoU</td><td>Tank pixels found, divided by the union of the found and the true tank pixels, in one partition.</td></tr>
+      <tr><td>Object F1</td><td>The tool labels connected regions in the tank map, and removes regions under 50 pixels. It matches each region to one true tank at IoU >= 0.5. F1 comes from the found, false and missed counts.</td></tr>
+      <tr><td>Threshold</td><td>A network calls a pixel a tank if its logit is above 0. The threshold is fixed. The tool does not fit it after the result.</td></tr>
+      <tr><td>95% interval</td><td>2,000 resamples of the test cells. The tool resamples cells, because neighbouring tanks are not independent.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>12.5 The network and the fault</h3>
+  <p>The network is a U-Net {{cite:ronneberger2015unet}} with a ResNet18 encoder {{cite:he2016resnet}}, from Segmentation Models PyTorch {{cite:smp}}. It has 14,328,209 weights. One reply can write only some thousands of numbers. Thus a reply can edit a small part only, or leave most weights at 0.</p>
+  <figure>
+    {{TANK_UNET}}
+    <figcaption>Figure 8. The ResNet18 U-Net. The two marked boxes are the parts that this section edits. All repair replies edited <code>encoder.bn1</code>. The LDA head edits <code>segmentation_head.0</code>.</figcaption>
+  </figure>
+  <p>Training settings for all ResNet18 U-Nets:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Start weights</td><td>ImageNet encoder.</td></tr>
+      <tr><td>Input</td><td>Crops of 256 x 256 around random train pixels, batch of 32, flips and quarter turns.</td></tr>
+      <tr><td>Loss</td><td>Binary cross-entropy plus Dice, on train pixels only.</td></tr>
+      <tr><td>Optimizer</td><td>AdamW, learning rate 5e-4, weight decay 1e-4, one-cycle schedule.</td></tr>
+      <tr><td>Length</td><td>40 epochs of 25 steps. The best epoch on the selection pixels is kept.</td></tr>
+      <tr><td>Hardware</td><td>One RTX PRO 6000 card for each run. Three seeds of the source network, plus one with colour jitter.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The source networks reach 0.71 to 0.74 IoU on hidden 2015 cells. On the new image, seed 0 falls to 0.386 val IoU. A network trained on the new image reaches 0.837. The rule set before the result was to stop if no edit reaches 90% of that value. No edit reaches 46%. Thus the fault is real, and seed 0 is the repair target. That choice was fixed before any result.</p>
+  <h3>12.6 Comparators</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Comparator</th><th>What it does</th><th>What it needs</th></tr></thead>
+    <tbody>
+      <tr><td>No edit</td><td>The source network on the new image.</td><td>Nothing.</td></tr>
+      <tr><td>AdaBN {{cite:li2016adabn}}</td><td>Recomputes all BatchNorm {{cite:ioffe2015bn}} statistics on the new image.</td><td>New pixels, no labels.</td></tr>
+      <tr><td>Histogram match</td><td>Changes the new image so that each band has the distribution of the 2015 image. The network does not change.</td><td>New pixels, no labels.</td></tr>
+      <tr><td>LDA head</td><td>Sets the head by a closed-form linear fit, from the same table that the LLM sees. It reaches the network through the edits parser, as a reply does.</td><td>Train labels.</td></tr>
+      <tr><td>Head retrained</td><td>Real gradients on the head only. This shows the limit of a head edit.</td><td>Train labels.</td></tr>
+      <tr><td>Filter LDA</td><td>A linear fit on blur and contrast filters, with no network. This is the floor.</td><td>Train labels.</td></tr>
+      <tr><td>Colour jitter</td><td>Adds random brightness and contrast to the 2015 training. This prevents the fault.</td><td>Retraining.</td></tr>
+      <tr><td>Network trained on the new image</td><td>The upper bound for this network.</td><td>Train labels and training.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The table has all results. Each row is one network, unless it says otherwise.</p>
+  {{TANK_TABLE}}
+  <figure>
+    {{TANK_IOU}}
+    <figcaption>Figure 9. Pixel IoU on the test cells, with 95% intervals. Higher is better.</figcaption>
+  </figure>
+  <figure>
+    {{TANK_F1}}
+    <figcaption>Figure 10. Object F1 on the test cells, with 95% intervals. Higher is better. The two RT-DETRv2 rows lead here, but they do not lead in Figure 9.</figcaption>
+  </figure>
+  <h3>12.7 Stage B: repair by an LLM</h3>
+  <p>The prompt gives the task, the network, the current head weights and a table of measured numbers. The numbers come from train cells only. The table holds:</p>
+  <ul>
+    <li>the mean and the spread of each of the 16 head input channels, for tank interior, tank edge and background;</li>
+    <li>the within-class covariance of those channels;</li>
+    <li>the BatchNorm shift of each layer between the two images;</li>
+    <li>the source and the new statistics of <code>encoder.bn1</code> and of the last decoder BatchNorm, channel by channel;</li>
+    <li>the current scores on the train cells.</li>
+  </ul>
+  <p>The control is the same prompt with the channel rows shuffled in the tables. The head weights stay true. The prompt does not say that the rows are shuffled.</p>
+  <p>BatchNorm divides each channel by a stored spread, after it removes a stored mean: <code>y = (x - running_mean) / sqrt(running_var + eps)</code>. In <code>encoder.bn1</code>, the mean shift is 1.23 stored standard deviations. All later layers are at 0.19 or less. The median ratio of new variance to stored variance is 7.82 on the 56 live channels. The other 8 channels are near zero in both images.</p>
+  <p>All 6 replies passed the tool audit. The columns of the table below mean the following. For a repair or a control, "Weights" is the count of changed weights. For a write reply, it is the count of weights that are not zero. Seconds is the time of one call. The Codex path reports no cost figure. Claude used 7.49 USD for 9 replies, by the figure of the CLI. See the caution about this figure in section 4.1.</p>
+  {{TANK_CALLS}}
+  <p>All 3 repair replies gave one diagnosis and one edit: they copied the new statistics into <code>encoder.bn1</code>. The edit changes 128 of 14,328,209 weights, or 0.0009%. Its val scores are 0.553 IoU and 0.449 object F1.</p>
+  <p><b>Gate 1 reads "no skill".</b> The rule was: the median repair must beat no edit, and the control must collapse. The median repair beats no edit. The median control scores 0.613 IoU and 0.400 object F1, so it does not collapse. Under the rule, Stage C does not run.</p>
+  <h4 style="margin:6px 0 0">Why the control did not collapse</h4>
+  <p>These checks came after the result. They explain it, and they do not change the verdict. They use plain programs, with no LLM.</p>
+  {{TANK_BN1}}
+  <figure>
+    {{TANK_SHUFFLE}}
+    <figcaption>Figure 11. Val IoU for plain edits of <code>encoder.bn1</code>. Each dot is one network. Shuffled rows can score above the true rows.</figcaption>
+  </figure>
+  <ul>
+    <li>Most of the repair is one change: larger stored variances. One scale on all channels reaches 0.500 IoU, with no channel data.</li>
+    <li>The mean alone makes the network worse, at 0.101 IoU.</li>
+    <li>A shuffle that writes a near-zero variance on a live channel fails each time, because the division makes that channel very large. This explains control 41914.</li>
+    <li>Thus row order has a small effect, and this control cannot separate a reader from a copier.</li>
+  </ul>
+  <h4 style="margin:6px 0 0">What the test does not show</h4>
+  <ul>
+    <li>The prompt gave away the answer. The table lists the new <code>encoder.bn1</code> values. A program that selects the layer with the largest shift makes the same network.</li>
+    <li>The 3 repairs are one result, because they have the same effect.</li>
+    <li>"No skill" means that this test did not show skill. It does not show that the LLM has no skill.</li>
+  </ul>
+  <h4 style="margin:6px 0 0">An observation outside the gate</h4>
+  <p>All 3 control replies found the shuffle, with no prompt to look for it. Each one multiplied kernel sums by channel means. Each one found that the result did not match the measured logit: about -12.8 against +1.29 on tank interior. Each one then left the head alone. No repair reply reported a shuffle. This is 3 of 3 against 0 of 3. It was not a planned test. It suggests that the replies read the table against the weights.</p>
+  <h3>12.8 Stage C: write from zeros</h3>
+  <p>Gate 1 skipped this stage. The owner asked for it after that result, so it ran under its own rule. The rule was set before any reply:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Median of 3 replies, val IoU</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>At or below the fact rule</td><td>No skill past the fact sheet.</td></tr>
+      <tr><td>Above the fact rule, at or below filter LDA</td><td>Some design skill, no practical gain.</td></tr>
+      <tr><td>Above filter LDA</td><td>A strong result. It is not expected.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The network is <code>geo/tiny.py</code>, a U-Net of 5 levels with ReLU, average pooling and 16,961 weights. That size is near the Breakout network. The prompt holds its source. A test measures its receptive field. The first design measured 158 pixels, below the 164 pixels of the largest tank. One more bottleneck layer fixed this before any prompt was sent.</p>
+  <p>All weights start at 0. The prompt holds the source and a fact sheet from the train cells: band mean and spread for each pixel class, local texture, tank share and tank diameters. It has no pixels and no answer table. The fact rule is a plain program that uses the same numbers: gray above the midpoint of two class means. It reaches the network through the edits parser, in 7 weights.</p>
+  <h4 style="margin:6px 0 0">Results</h4>
+  <p>The median Claude reply scores 0.505 val IoU. The median Astra reply scores 0.460. Both are above the fact rule (0.131) and below filter LDA (0.523). <b>The rule reads "some design skill, no practical gain" for both.</b> The difference from filter LDA is small for Claude, so this is a near tie and not a clear loss. Zero and random networks score 0.000 to 0.028 val IoU.</p>
+  <p>These plain rules use only the fact sheet. They came after the replies, because the fact rule was a weak bar. They do not change the verdict. All 3 Claude replies beat them. Two of the 3 Astra replies beat them.</p>
+  {{TANK_PLAIN}}
+  <h4 style="margin:6px 0 0">The designs</h4>
+  <p>The replies use different designs. All of them find pale regions at more than one scale.</p>
+  <ul>
+    <li><b>Claude 54464.</b> It uses a logit of about <code>F + 1.5 G + G8 - 1.5</code>. F is a paleness value at full resolution. G and G8 are averages of F at two coarser scales, which fill dark patches inside large tanks. It uses 140 weights.</li>
+    <li><b>Claude 54468.</b> It uses a logit of <code>1.3 P + S + 2 F - 1.35</code>. It also adds a suppressor for long thin objects. It uses 305 weights.</li>
+    <li><b>Astra replies.</b> These test for shape. They compare the centre with samples in four opposing directions, at radii such as 8, 16, 32, 48 and 72 pixels. They use 345 to 525 weights.</li>
+  </ul>
+  <figure>
+    <img class="shot" src="{{IMG_TANK_WEIGHTS}}" alt="Heat maps of the weights of each layer, for one Claude reply and one Astra reply. Most cells are blank, and diagonal lines of cells pass values to deeper layers.">
+    <figcaption>Figure 12. The written weights of two replies. Orange is positive, teal is negative and blank is zero. The scale is by layer. Diagonal lines pass a channel to the next layer without change.</figcaption>
+  </figure>
+  <figure>
+    <img class="shot" src="{{IMG_TANK_SCENE}}" alt="Six panels. A synthetic scene with pale discs, a pale roof, a blue roof, a road and small buildings. The other panels show true tanks and the tank maps of four networks.">
+    <figcaption>Figure 13. Real replies on a synthetic scene. The colours come from the fact sheet. The written networks find all discs and also mark the pale roof. The Astra reply also marks parts of the road. The trained network misses the three smallest discs and marks the blue roof. <b>This is a view and not a test.</b> This scene is much easier than the real image.</figcaption>
+  </figure>
+  <figure>
+    {{TANK_SCATTER}}
+    <figcaption>Figure 14. Test tanks found against false objects. The top left is best. Astra finds more tanks than Claude and makes more false objects. RT-DETRv2 finds the most tanks and makes few false objects.</figcaption>
+  </figure>
+  <h4 style="margin:6px 0 0">Claude and Astra</h4>
+  <ul>
+    <li>Astra found 15 to 17 of 28 test tanks, and made 52 to 472 false objects.</li>
+    <li>Claude found 7 to 10 of 28 test tanks, and made 14 to 34 false objects.</li>
+    <li>One Astra reply fails on false objects (472).</li>
+    <li>The Astra shape tests can explain its higher recall. This experiment does not prove that.</li>
+    <li>This does not show that one model is better. The sample is 3 replies for each model, and the intervals overlap.</li>
+    <li>The Astra lead on Breakout in section 6 did not occur here. This is one task.</li>
+  </ul>
+  <h4 style="margin:6px 0 0">Isolation of the Codex path</h4>
+  <p>Astra ran through the Codex CLI {{cite:codex}}. Codex differs from the Claude path in section 4:</p>
+  <ul>
+    <li>The call runs from an empty folder, with an empty Codex home. That home holds only a link to the login.</li>
+    <li>The tool turns off every enabled tool feature, and removes user configuration and rules.</li>
+    <li>Codex still names some tools to the model, and no flag removes the names. A probe showed that <code>exec</code> and <code>spawn_agent</code> both fail.</li>
+    <li>A tool attempt shows only in the error log. The audit therefore reads the stream and the error log. It rejects a run with any attempt. There were no attempts.</li>
+    <li>Codex has its own base instructions. The Claude path uses one short system prompt.</li>
+    <li>The token counts of the two tools may not be comparable.</li>
+    <li>OpenAI received the fact sheet numbers, with the owner's approval. It received no pixels.</li>
+  </ul>
+  <h3>12.9 Zero-shot detector</h3>
+  <p>RT-DETRv2-S from LibreYOLO {{cite:libreyolo}} has DOTA {{cite:xia2018dota}} weights, with a <code>storage-tank</code> class. It had no training on this image, and it had no weight edits. It takes about 5 seconds on one card. The settings were fixed before the run, from earlier work on the 2015 image: scale 1.5, score >= 0.70. A second run at native pixels is for comparison only.</p>
+  <p>The tool draws each detection as a circle on the tank map, so the scores use the same metric as the networks. Two touching circles can merge. The table below therefore also counts each circle as one object.</p>
+  {{TANK_CIRCLES}}
+  <p>The rule was: if the detector beats the trained network on val cells, use the detector. <b>This rule was not complete, because it did not name a metric.</b> The detector is better on object F1 (0.882, 0.842) and worse on pixel IoU (0.789, 0.837). The test cells go the same way, and the intervals overlap. Thus the rule gives no clear result. The cause of the lower IoU is clear: a circle does not follow an outline exactly. The median IoU of a found tank is 0.78.</p>
+  <p>Over all 97 tanks, the detector finds 78 at score >= 0.70. Most misses are small tanks. One missed tank is 124 m across.</p>
+  {{TANK_SIZES}}
+  <figure>
+    {{TANK_SIZE_CHART}}
+    <figcaption>Figure 15. Tanks by diameter. The number at the right of each bar is the count of tanks.</figcaption>
+  </figure>
+  <h3>12.10 What the results show</h3>
+  <p>The results support these statements:</p>
+  <ul>
+    <li>An LLM can write a working image network from zeros and a short fact sheet, with no tools and no training. This occurred in 6 of 6 write replies, on one image.</li>
+    <li>The written networks beat zero networks, random networks and the fact rule.</li>
+    <li>A small edit can improve a failed network, on this image. Plain programs can make the same edit.</li>
+    <li>For this task, a ready-made detector or real training is the practical choice.</li>
+  </ul>
+  <p>The results do not support these statements:</p>
+  <ul>
+    <li>They do not show that an LLM can repair a network with skill. The test gave away the answer, and its control did not separate a reader from a copier.</li>
+    <li>They do not show that weight edits are better than training. No written network beats the network trained on the new image on val cells.</li>
+    <li>They do not show that one LLM is better than the other.</li>
+    <li>They do not show results for other images or other tasks.</li>
+  </ul>
+  <h3>12.11 Failures and lessons</h3>
+  <p>The experiment did not give the result that the owner wanted. The table lists what went wrong. It also includes faults in this project's method, because those faults are the most useful result.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>What went wrong</th><th>Effect</th><th>How it was found</th><th>Lesson</th></tr></thead>
+    <tbody>
+      <tr><td>The prompt held the answer: the new <code>encoder.bn1</code> values.</td><td>The repair test became a copy test.</td><td>Reading the replies.</td><td>Before an LLM call, run a plain program on the prompt. If it can get the answer, change the prompt.</td></tr>
+      <tr><td>The control shuffled rows, but the fix did not depend on row order.</td><td>The control did not collapse, and Gate 1 reads "no skill".</td><td>Plain checks after the result.</td><td>Before an LLM call, test the control with a plain program. It must collapse.</td></tr>
+      <tr><td>The first training data were chips cut around tanks. Of 708 chips, 704 hold a tank.</td><td>The network reached 0.98 IoU on its training pixels, and it marked about 60% of held-out pixels as tank. The true share is 16%.</td><td>Val IoU that moved from 0.2 to 0.8 at a very low learning rate.</td><td>Do not accept an unstable curve. Find its cause before any comparison.</td></tr>
+      <tr><td>The first split dropped each chip that touched a val or test cell.</td><td>Only 57 training chips remained.</td><td>The count printed by <code>prepare</code>.</td><td>Hide pixels, not whole samples. Print the counts.</td></tr>
+      <tr><td>The filter LDA fit blurred the full image.</td><td>Hidden pixels reached train features near cell edges. The bar changed from 0.514 to 0.523. No verdict changed.</td><td>External code review.</td><td>Test each fit for partition leaks, not only the prompts.</td></tr>
+      <tr><td>The detector rule named no metric.</td><td>The rule gives no clear result.</td><td>Reading the result.</td><td>Name the metric in each rule.</td></tr>
+      <tr><td>The test cells were opened before Stage C and the detector.</td><td>These stages cannot use the test cells as a held-out test.</td><td>Planning.</td><td>Decide all stages before opening a test set. New work needs a new area.</td></tr>
+      <tr><td>The tiny network was too small to see the largest tank.</td><td>The first design measured 158 of 164 pixels.</td><td>A test, before the prompt was sent.</td><td>Test the design. Do not change a failed test to make it pass.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>12.12 Procedures</h3>
+  <p>The commands need the private images. Without them, you cannot repeat the training or the scores. You can read the code, the prompts and <code>docs/tanks.json</code>. Do these procedures on a GPU host, in the project folder.</p>
+  <h4 style="margin:6px 0 0">Set up the host</h4>
+  <ol>
+    <li>Run <code>bash geo/gc1-setup.sh</code>.</li>
+    <li>Set <code>P</code> to the Python of the new venv.</li>
+    <li>Run <code>$P -m unittest discover -s geo -p test_tanks.py</code>.</li>
+    <li>Make sure that all tests pass.</li>
+  </ol>
+  <h4 style="margin:6px 0 0">Train the networks and get the baselines</h4>
+  <ol>
+    <li>Run <code>$P geo/tanks.py prepare --data &lt;data folder&gt;</code>.</li>
+    <li>Run <code>$P geo/tanks.py train source --seed 0</code>.</li>
+    <li>Run <code>$P geo/tanks.py train source --seed 1</code>.</li>
+    <li>Run <code>$P geo/tanks.py train source --seed 2</code>.</li>
+    <li>Run <code>$P geo/tanks.py train source --seed 0 --jitter</code>.</li>
+    <li>Run <code>$P geo/tanks.py train target --seed 0</code>.</li>
+    <li>Run <code>$P geo/tanks.py baselines</code>.</li>
+    <li>Run <code>$P geo/tanks.py report</code>.</li>
+  </ol>
+  <h4 style="margin:6px 0 0">Run Stage B</h4>
+  <div class="warn"><b>CAUTION</b> Each <code>ask</code> command uses LLM capacity. Run <code>ask</code> on the computer that holds the login.</div>
+  <ol>
+    <li>Run <code>.venv/bin/python wsp.py ask tanks repair</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py ask tanks repair-shuffled</code>.</li>
+    <li>Copy the run folders to the GPU host.</li>
+    <li>Run <code>$P geo/tanks.py score &lt;run folder&gt;</code> for each run folder.</li>
+  </ol>
+  <h4 style="margin:6px 0 0">Run Stage C</h4>
+  <ol>
+    <li>Run <code>$P geo/tanks.py train tiny --seed 0 --epochs 200</code>.</li>
+    <li>Run <code>$P geo/tanks.py write-report</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py ask tanks write</code>.</li>
+    <li>Run <code>.venv/bin/python wsp.py ask tanks write --model gpt-6-astra --effort xhigh</code>.</li>
+    <li>Copy the run folders to the GPU host.</li>
+    <li>Run <code>$P geo/tanks.py write-score &lt;run folder&gt;</code> for each run folder.</li>
+  </ol>
+  <h4 style="margin:6px 0 0">Run the detector</h4>
+  <ol>
+    <li>Install LibreYOLO at commit <code>89efbe87</code>.</li>
+    <li>Run <code>$P geo/detector.py grid --data &lt;data folder&gt; --out target.tif</code>.</li>
+    <li>Run <code>python geo/detect.py --raster target.tif --model LibreRTDETRv2s-obb.pt --scale 1.5 --out grid</code>, with the LibreYOLO venv.</li>
+    <li>Run <code>$P geo/detector.py score --data &lt;data folder&gt; grid.gpkg</code>.</li>
+  </ol>
+  <h4 style="margin:6px 0 0">Open the test cells</h4>
+  <div class="warn"><b>WARNING</b> The <code>final</code> command opens the test cells once. It refuses a second run. After this command, the test cells are not a held-out test.</div>
+  <ol>
+    <li>Run <code>$P geo/tanks.py final source-s0 adabn hist-match &lt;run folders&gt;</code>.</li>
+  </ol>
+  <h4 style="margin:6px 0 0">Update the figures of this section</h4>
+  <ol>
+    <li>Run <code>$P docs/tank_figures.py --gdb &lt;Tanks.gdb&gt;</code>.</li>
+    <li>Run <code>node docs/build.js</code>.</li>
+  </ol>
+  <h3>12.13 Fault isolation</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Fault</th><th>Cause</th><th>Remedy</th></tr></thead>
+    <tbody>
+      <tr><td><code>No module named 'scipy'</code> after setup</td><td><code>uv pip</code> read the overrides in <code>pyproject.toml</code>.</td><td>Use <code>--no-config</code>, as <code>geo/gc1-setup.sh</code> does.</td></tr>
+      <tr><td>The API key gives HTTP 401</td><td>The key in the environment is not valid.</td><td>Use the Codex login. <code>call_codex</code> removes the key from the environment.</td></tr>
+      <tr><td><code>the run is not tool-free</code> on a Codex run</td><td>The model tried a tool. The attempt fails, but the audit rejects the run.</td><td>Do not use this run as a result. Make a new call.</td></tr>
+      <tr><td><code>test cells already used</code></td><td><code>final</code> has already run.</td><td>Do not remove <code>final.json</code>. Use a new area for a new test.</td></tr>
+      <tr><td><code>run prepare on this --data</code></td><td>The data folder does not match the saved grid or tank count.</td><td>Run <code>prepare</code> on that folder.</td></tr>
+      <tr><td>Remote job stops with <code>Permission denied</code> on <code>tanks.py</code></td><td>A variable in the command expanded on the wrong computer.</td><td>Put the remote command in single quotes.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>12.14 Limits</h3>
+  <ul>
+    <li>The results come from one image pair. No other scene was tested.</li>
+    <li>The detector settings came from earlier work on 73 tanks in this same area. Thus its scores can be optimistic.</li>
+    <li>The score of 0.70 was not tuned on these cells. A lower score finds more tanks and can add false objects. That was not measured.</li>
+    <li>Filter LDA was corrected after <code>final</code>. The table uses the corrected fit, which used the test cells for its report only.</li>
+    <li>The torch and Segmentation Models PyTorch versions are recorded: 2.11.0 and 0.6.0. The versions of the other packages were not.</li>
+    <li>The replies' own claims about each path were not checked layer by layer.</li>
+  </ul>
+  <h3>12.15 Next work, if the work continues</h3>
+  <ol>
+    <li>Get a new held-out area.</li>
+    <li>Run each new prompt and control through a plain program first.</li>
+    <li>Select a fault that plain fixes cannot solve.</li>
+    <li>Allow feedback rounds, as in the paper's Experiment 8. Add random search with the same budget as a baseline.</li>
+    <li>Try a network with ring kernels and a centre heatmap for write tests. Add the classic Hough circle transform as a baseline.</li>
+  </ol>
+</section>
+
+<section id="limits" style="display:grid;gap:10px">
+  <h2>13. Limits and next work</h2>
+  <h3>13.1 Known limits</h3>
+  <ul>
+    <li>Sample size is small: 1 read reply, 1 control reply, 1 Breakout reply and 3 Three Pads replies. Section 12.14 gives the limits of the tank experiment.</li>
     <li>This project did not run Experiments 2, 3, 4, 6, 7 or 8 with an LLM. It only checks the saved Experiment 2 replies.</li>
     <li>A person has not yet flown the game for this manual. The browser test operates the controls, but does not land by hand.</li>
     <li>The game has no wind, no terrain and no rotation. These were left out to keep the state simple.</li>
     <li>The page uses unseeded random numbers. Flights on the page do not repeat. Only the scorer uses seeds.</li>
     <li>The Medium article was read in part only.</li>
   </ul>
-  <h3>12.2 Next work, in order</h3>
+  <h3>13.2 Next work, in order</h3>
   <ol>
     <li>Add a true null control for Experiment 1: random weights, and a prompt with no weights.</li>
     <li>Run all four Experiment 1 networks, three replies each.</li>
@@ -502,7 +829,7 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
 </section>
 
 <section id="licences" style="display:grid;gap:10px">
-  <h2>13. Licences and attribution</h2>
+  <h2>14. Licences and attribution</h2>
   <p>The code is MIT, in the file <code>LICENSE</code>. The manual, the run results and <code>lander/prompt.md</code> are CC BY 4.0 {{cite:ccby}}. The file <code>NOTICE</code> gives the terms for each part. The items below keep their own terms.</p>
   <ul>
     <li>Logs, networks and prompts from <a href="https://github.com/RikiyaT/lm_understand-logs">lm_understand-logs</a>: CC BY 4.0, by the post's authors. Their scripts are MIT.</li>
@@ -510,23 +837,24 @@ W3[:, 2] *= 2                      # scale (also += and -=)</code></pre>
     <li>The Experiment 5 prompts quote MinAtar source code, by Kenny Young and Tian Tian: GPL-3.0 {{cite:gpl3}}. The project fetches these files when it runs. Do not commit <code>data/</code> or <code>results/exp*/prompt.txt</code>. Git ignores both.</li>
     <li>The project imports MinAtar when it runs, but does not include its code. A distribution that includes MinAtar must follow GPL-3.0.</li>
     <li>Three Pads is original to this project. It does not use assets from any existing game.</li>
+    <li>The tank experiment uses Segmentation Models PyTorch and LibreYOLO when it runs. The project does not include their code or weights, except for <code>geo/detect.py</code>, which is original to this project. The images are private, and the project does not publish them.</li>
   </ul>
 </section>
 
 <section id="references" style="display:grid;gap:10px">
-  <h2>14. References</h2>
-  <p>This section lists {{REFS_TOTAL}} references. The tool <code>docs/check_refs.py</code> checked all of them on {{REFS_DATE}}. The build stops if a citation has no entry, if an entry in section 14.1 has no citation, or if a check failed.</p>
+  <h2>15. References</h2>
+  <p>This section lists {{REFS_TOTAL}} references. The tool <code>docs/check_refs.py</code> checked all of them on {{REFS_DATE}}. The build stops if a citation has no entry, if an entry in section 15.1 has no citation, or if a check failed.</p>
   <ul>
     <li><b>arXiv references.</b> The arXiv API must return the same title, and the first author must be a whole word in its author list.</li>
     <li><b>Other references.</b> The link must open, and the expected title must be in the page as whole words. An HTTP error fails the check, except 401, 403 and 429, which show as "link refuses scripts". Some pages use a different source: PyPI through its JSON API, and the Spall DOI through Crossref. Dataset entries use the dataset name, because the page does not show a formal title.</li>
     <li><b>One PDF.</b> The Guide Labs report is a PDF. The check tool cannot read PDF text. Claude read the title and the authors on page 1.</li>
   </ul>
-  <p>The check shows that each work exists with its stated title. The check does not confirm the claims inside each work. Section 14.2 and section 14.3 are copied from the bibliographies of the source documents. This project did not read those works in full.</p>
-  <h3>14.1 Documents that this manual cites</h3>
+  <p>The check shows that each work exists with its stated title. The check does not confirm the claims inside each work. Section 15.2 and section 15.3 are copied from the bibliographies of the source documents. This project did not read those works in full.</p>
+  <h3>15.1 Documents that this manual cites</h3>
   {{REFS_MANUAL}}
-  <h3>14.2 Documents that the main post cites</h3>
+  <h3>15.2 Documents that the main post cites</h3>
   {{REFS_POST}}
-  <h3>14.3 Documents that the second report cites</h3>
+  <h3>15.3 Documents that the second report cites</h3>
   {{REFS_REPORT}}
 </section>
 </main>

@@ -202,6 +202,81 @@
   "expect": "General Public License"
  },
  {
+  "id": "ronneberger2015unet",
+  "group": "manual",
+  "authors": "Ronneberger, Fischer and Brox",
+  "title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+  "year": "2015",
+  "url": "https://arxiv.org/abs/1505.04597"
+ },
+ {
+  "id": "he2016resnet",
+  "group": "manual",
+  "authors": "He, Zhang, Ren and Sun",
+  "title": "Deep Residual Learning for Image Recognition",
+  "year": "2015",
+  "url": "https://arxiv.org/abs/1512.03385"
+ },
+ {
+  "id": "ioffe2015bn",
+  "group": "manual",
+  "authors": "Ioffe and Szegedy",
+  "title": "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift",
+  "year": "2015",
+  "url": "https://arxiv.org/abs/1502.03167"
+ },
+ {
+  "id": "li2016adabn",
+  "group": "manual",
+  "authors": "Li, Wang, Shi, Shi and Hou",
+  "title": "Revisiting Batch Normalization For Practical Domain Adaptation",
+  "year": "2016",
+  "url": "https://arxiv.org/abs/1603.04779"
+ },
+ {
+  "id": "lv2024rtdetrv2",
+  "group": "manual",
+  "authors": "Lv, Zhao, Xu, Wei, Chen and Liu",
+  "title": "RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer",
+  "year": "2024",
+  "url": "https://arxiv.org/abs/2407.17140"
+ },
+ {
+  "id": "xia2018dota",
+  "group": "manual",
+  "authors": "Xia, Bai, Ding, Zhu, Belongie, Luo, Datcu, Pelillo and Zhang",
+  "title": "DOTA: A Large-scale Dataset for Object Detection in Aerial Images",
+  "year": "2017",
+  "url": "https://arxiv.org/abs/1711.10398"
+ },
+ {
+  "id": "smp",
+  "group": "manual",
+  "authors": "Iakubovskii",
+  "title": "Segmentation Models PyTorch",
+  "year": "2019",
+  "url": "https://github.com/qubvel-org/segmentation_models.pytorch",
+  "expect": "segmentation_models.pytorch"
+ },
+ {
+  "id": "libreyolo",
+  "group": "manual",
+  "authors": "LibreYOLO contributors",
+  "title": "LibreYOLO",
+  "year": "2026",
+  "url": "https://github.com/LibreYOLO/libreyolo",
+  "expect": "LibreYOLO"
+ },
+ {
+  "id": "codex",
+  "group": "manual",
+  "authors": "OpenAI",
+  "title": "Codex CLI",
+  "year": "2026",
+  "url": "https://github.com/openai/codex",
+  "expect": "codex"
+ },
+ {
   "id": "koyamada2023pgx",
   "group": "post",
   "authors": "Koyamada et al.",

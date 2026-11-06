@@ -54,4 +54,3 @@ Plan and gates: `geo/README.md`. The changer is Claude Opus 5.5 only.
 - [x] Scorer on the same grid, cells and metrics as the networks, with tests.
 - [x] RT-DETRv2-S at fixed settings on gc1, and a native-pixel run for comparison.
 - [x] Write the result. gc1 cleaned.
-- [ ] User decides: commit and merge.

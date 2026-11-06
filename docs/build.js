@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Builds docs/index.html from docs/source.html. Every figure, table and result comes from the run files, not from typed numbers.
+// Builds docs/index.html from docs/source.html. Figures, tables and results come from the run files and docs/tanks.json. Some prose numbers are typed.
 // Usage: node docs/build.js
 const fs = require('fs');
 const path = require('path');
@@ -200,6 +200,120 @@ function pipelineDiagram() {
   </svg></div>`;
 }
 
+// --- Tank experiment. docs/tanks.json holds scores only, so the public build needs no private results. ------------------
+
+const tanks = json('docs/tanks.json');
+const GROUPS = { base: ['s1', 'Plain fix or baseline'], llm: ['s2', 'Written or edited by an LLM'], best: ['s3', 'Trained, or a detector'] };
+const f3 = (v) => v.toFixed(3);
+const legend = (x, y, items) => items.map(([cls, label], i) => `<circle class="${cls}f" cx="${x + i * 200 + 6}" cy="${y}" r="5"></circle><text class="lab" x="${x + i * 200 + 16}" y="${y + 4}">${esc(label)}</text>`).join('');
+
+function intervalChart(value, ci, name) {
+  const rows = tanks.rows;
+  const W = 680, left = 245, right = 16, top = 30, rowH = 22;
+  const sx = (v) => left + v * (W - left - right);
+  const H = top + rows.length * rowH + 26;
+  const grid = [0, 0.2, 0.4, 0.6, 0.8, 1].map((t) => `<line class="grid" x1="${sx(t)}" x2="${sx(t)}" y1="${top - 4}" y2="${H - 22}"></line><text class="lab" x="${sx(t)}" y="${H - 6}" text-anchor="middle">${t}</text>`).join('');
+  const marks = rows.map((r, i) => {
+    const y = top + i * rowH + 9;
+    const cls = GROUPS[r.group][0];
+    return `<g><title>${esc(r.label)}: ${name} ${f3(r[value])}, 95% interval ${r[ci][0]} to ${r[ci][1]}</title><rect x="0" y="${y - 10}" width="${W}" height="${rowH}" fill="transparent"></rect><text class="lab" x="${left - 10}" y="${y + 4}" text-anchor="end">${esc(r.label)}</text><line class="${cls}s" stroke-width="2" x1="${sx(r[ci][0])}" x2="${sx(r[ci][1])}" y1="${y}" y2="${y}"></line><circle class="${cls}f mark" cx="${sx(r[value])}" cy="${y}" r="5"></circle></g>`;
+  }).join('');
+  return `<div class="scroll"><svg class="wide" viewBox="0 0 ${W} ${H}" role="img" aria-label="${name} on the test cells for each comparator, with 95 percent intervals. The table above gives the same values.">${legend(14, 13, Object.values(GROUPS))}${grid}${marks}</svg></div>`;
+}
+
+function sizeChart() {
+  const series = [['s3', 'Found at score >= 0.70'], ['s1', 'Found only below 0.70'], ['s2', 'Not found']];
+  const W = 680, left = 110, right = 40, top = 30, rowH = 34;
+  const max = Math.max(...tanks.sizes.map((r) => r.tanks));
+  const sx = (v) => (v / max) * (W - left - right);
+  const H = top + tanks.sizes.length * rowH + 8;
+  const rows = tanks.sizes.map((r, i) => {
+    const y = top + i * rowH;
+    const parts = [r.at_70, r.any - r.at_70, r.tanks - r.any];
+    let x = left;
+    const bars = parts.map((n, j) => {
+      const w = sx(n);
+      const rect = n ? `<rect class="${series[j][0]}f" x="${x.toFixed(1)}" y="${y}" width="${Math.max(1, w - 2).toFixed(1)}" height="22" rx="2"><title>${esc(r.label)}: ${esc(series[j][1])}: ${n} of ${r.tanks}</title></rect>` : '';
+      x += w;
+      return rect;
+    }).join('');
+    return `<text class="lab" x="${left - 10}" y="${y + 15}" text-anchor="end">${esc(r.label)}</text>${bars}<text class="val" x="${(x + 6).toFixed(1)}" y="${y + 15}">${r.tanks}</text>`;
+  }).join('');
+  return `<div class="scroll"><svg class="wide" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tanks found by RT-DETRv2 by tank diameter. The table above gives the same values.">${legend(14, 13, series)}${rows}</svg></div>`;
+}
+
+function shuffleChart() {
+  const b = tanks.bn1;
+  const rows = [['True statistics, all channels', [b.true[0]]], ['True variance only', [b.variance[0]]], ['One scale on live variances', [b.scale[0]]],
+    ['True mean only', [b.mean[0]]], ['5 shuffles, near-zero rows skipped', b.shuffle_skip.map((v) => v[0])], ['5 shuffles, all rows written', b.shuffle_all.map((v) => v[0])]];
+  const W = 680, left = 245, right = 16, top = 10, rowH = 30;
+  const sx = (v) => left + v * (W - left - right);
+  const H = top + rows.length * rowH + 26;
+  const grid = [0, 0.2, 0.4, 0.6, 0.8, 1].map((t) => `<line class="grid" x1="${sx(t)}" x2="${sx(t)}" y1="${top}" y2="${H - 22}"></line><text class="lab" x="${sx(t)}" y="${H - 6}" text-anchor="middle">${t}</text>`).join('');
+  const marks = rows.map(([label, values], i) => {
+    const y = top + i * rowH + 14;
+    return `<text class="lab" x="${left - 10}" y="${y + 4}" text-anchor="end">${esc(label)}</text>${values.map((v) => `<circle class="s1f mark" cx="${sx(v).toFixed(1)}" cy="${y}" r="5"><title>${esc(label)}: val IoU ${f3(v)}</title></circle>`).join('')}`;
+  }).join('');
+  return `<div class="scroll"><svg class="wide" viewBox="0 0 ${W} ${H}" role="img" aria-label="Val IoU for plain edits of encoder.bn1. The table above gives the same values.">${grid}${marks}</svg></div>`;
+}
+
+function scatterChart() {
+  const rows = tanks.rows.filter((r) => r.fp > 0);
+  const W = 680, H = 330, left = 52, right = 20, top = 30, bottom = 44;
+  const sx = (v) => left + (Math.log10(v) / 3) * (W - left - right);
+  const sy = (v) => H - bottom - (v / 28) * (H - top - bottom);
+  const gridX = [1, 3, 10, 30, 100, 300, 1000].map((t) => `<line class="grid" x1="${sx(t).toFixed(1)}" x2="${sx(t).toFixed(1)}" y1="${top}" y2="${H - bottom}"></line><text class="lab" x="${sx(t).toFixed(1)}" y="${H - bottom + 16}" text-anchor="middle">${t}</text>`).join('');
+  const gridY = [0, 7, 14, 21, 28].map((t) => `<line class="grid" x1="${left}" x2="${W - right}" y1="${sy(t).toFixed(1)}" y2="${sy(t).toFixed(1)}"></line><text class="lab" x="${left - 8}" y="${sy(t) + 4}" text-anchor="end">${t}</text>`).join('');
+  const named = { 'RT-DETRv2-S, fixed settings': 'RT-DETRv2-S', 'ResNet18 U-Net, trained': 'Trained U-Net', 'Astra write 60743': 'Astra 60743', 'Claude write 54466': 'Claude 54466', 'No edit, seed 0': 'No edit' };
+  const marks = rows.map((r) => {
+    const cls = GROUPS[r.group][0];
+    const x = sx(r.fp), y = sy(r.tp);
+    const label = named[r.label] ? `<text class="lab" x="${(x + 9).toFixed(1)}" y="${(y - 7).toFixed(1)}">${named[r.label]}</text>` : '';
+    return `<g><title>${esc(r.label)}: ${r.tp} of 28 tanks found, ${r.fp} false objects</title><circle class="${cls}f mark" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5"></circle>${label}</g>`;
+  }).join('');
+  return `<div class="scroll"><svg class="wide" viewBox="0 0 ${W} ${H}" role="img" aria-label="Test tanks found against false objects, for each comparator with one or more false objects. The table above gives the same values.">${legend(14, 13, Object.values(GROUPS))}${gridX}${gridY}${marks}<text class="lab" x="${(left + W - right) / 2}" y="${H - 8}" text-anchor="middle">False objects on the test cells (log scale)</text><text class="lab" transform="translate(13 ${(top + H - bottom) / 2}) rotate(-90)" text-anchor="middle">Tanks found, of 28</text></svg></div>`;
+}
+
+const boxOf = (x, y, w, title, sub, cls = '') => `<g><rect class="box ${cls}" x="${x}" y="${y}" width="${w}" height="56" rx="4"></rect><text class="ttl" x="${x + w / 2}" y="${y + 23}" text-anchor="middle">${esc(title)}</text><text class="lab" x="${x + w / 2}" y="${y + 41}" text-anchor="middle">${esc(sub)}</text></g>`;
+const lineOf = (x1, y1, x2, y2) => `<line class="arrow" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#head)"></line>`;
+
+function tankFlow() {
+  return `<div class="scroll"><svg class="wide" viewBox="0 0 700 290" role="img" aria-label="Experiment flow. The 2015 image trains the source network. The source network fails on the new image. Three routes follow: repair by an LLM, write from zeros by an LLM, and a detector with no training.">
+    ${boxOf(10, 20, 160, '2015 image', 'train cells only')}
+    ${boxOf(270, 20, 160, 'Source network', 'ResNet18 U-Net')}
+    ${boxOf(530, 20, 160, 'New image', 'the network fails', 'accent')}
+    ${boxOf(10, 125, 200, 'Stage B: repair', 'LLM edits the source network')}
+    ${boxOf(250, 125, 200, 'Stage C: write', 'LLM sets all weights from 0')}
+    ${boxOf(490, 125, 200, 'Detector', 'RT-DETRv2, no training here')}
+    ${boxOf(130, 225, 440, 'One scorer', 'same pixel grid, same cells, same metrics')}
+    ${lineOf(170, 48, 268, 48)}${lineOf(430, 48, 528, 48)}${lineOf(560, 76, 110, 123)}${lineOf(610, 76, 350, 123)}${lineOf(650, 76, 590, 123)}${lineOf(110, 181, 230, 223)}${lineOf(350, 181, 350, 223)}${lineOf(590, 181, 470, 223)}
+  </svg></div>`;
+}
+
+function unetDiagram() {
+  const enc = [[10, 20, 'encoder.conv1', '7 x 7, stride 2'], [10, 90, 'encoder.bn1', 'BatchNorm, 64 channels'], [10, 160, 'encoder.layer1 to layer4', '11.18M weights in the encoder']];
+  return `<div class="scroll"><svg class="wide" viewBox="0 0 700 240" role="img" aria-label="ResNet18 U-Net. The encoder includes encoder.bn1, which all repair replies edited. The decoder leads to segmentation_head.0, which the LDA head edits.">
+    ${boxOf(enc[0][0], enc[0][1], 220, enc[0][2], enc[0][3])}${boxOf(enc[1][0], enc[1][1], 220, enc[1][2], enc[1][3], 'accent')}${boxOf(enc[2][0], enc[2][1], 220, enc[2][2], enc[2][3])}
+    ${boxOf(290, 160, 180, 'decoder.blocks', '3.15M weights')}${boxOf(290, 20, 180, 'Skip connections', 'encoder to decoder')}
+    ${boxOf(520, 160, 170, 'segmentation_head.0', '145 weights', 'accent')}${boxOf(520, 20, 170, 'Logit map', 'tank if logit > 0')}
+    ${lineOf(120, 76, 120, 88)}${lineOf(120, 146, 120, 158)}${lineOf(230, 188, 288, 188)}${lineOf(230, 118, 330, 78)}${lineOf(380, 76, 380, 158)}${lineOf(470, 188, 518, 188)}${lineOf(605, 160, 605, 78)}
+  </svg></div>`;
+}
+
+const ci = (v) => `${v[0].toFixed(3)} to ${v[1].toFixed(3)}`;
+const tankTable = table(['Comparator', 'Val IoU', 'Val object F1', 'Test IoU', '95% interval', 'Test object F1', '95% interval', 'Found', 'False', 'Missed'],
+  tanks.rows.map((r) => [esc(r.label), f3(r.val_iou), f3(r.val_f1), f3(r.iou), ci(r.iou_ci), f3(r.f1), ci(r.f1_ci), r.tp, r.fp, r.fn]));
+const callRows = (name, group, weight) => Object.entries(group).map(([id, c]) => [`${name} ${id}`, `${c.applied} of ${c.statements}`, weight(c).toLocaleString('en-US'), c.tokens.toLocaleString('en-US'), Math.round(c.seconds), c.cost === null || c.cost === undefined ? 'not reported' : c.cost.toFixed(2)]);
+const tankCalls = table(['Reply', 'Statements read', 'Weights', 'Output tokens', 'Seconds', 'Cost figure (USD)'], [
+  ...callRows('Repair', tanks.calls.repair, (c) => c.changed), ...callRows('Control', tanks.calls.control, (c) => c.changed),
+  ...callRows('Claude write', tanks.calls.claude, (c) => c.nonzero), ...callRows('Astra write', tanks.calls.astra, (c) => c.nonzero)]);
+const tankSizes = table(['Tank diameter', 'Tanks', 'Found at score >= 0.70', 'Found at any score'], tanks.sizes.map((r) => [r.label, r.tanks, r.at_70, r.any]));
+const b1 = tanks.bn1;
+const span = (rows, i) => `${f3(Math.min(...rows.map((v) => v[i])))} to ${f3(Math.max(...rows.map((v) => v[i])))}`;
+const tankBn1 = table(['Edit of encoder.bn1', 'Val IoU', 'Val object F1'], [['True statistics, all 64 channels (the same network as the repair)', f3(b1.true[0]), f3(b1.true[1])], ['True variance only', f3(b1.variance[0]), f3(b1.variance[1])], ['True mean only', f3(b1.mean[0]), f3(b1.mean[1])], ['One scale on all live variances (x 7.82), with no channel data', f3(b1.scale[0]), f3(b1.scale[1])], ['5 random shuffles, rows with near-zero variance skipped', span(b1.shuffle_skip, 0), span(b1.shuffle_skip, 1)], ['The same 5 shuffles, all rows written', span(b1.shuffle_all, 0), span(b1.shuffle_all, 1)]]);
+const tankPlain = table(['Plain rule from the fact sheet', 'Val IoU', 'Val object F1', 'Test IoU', 'Test object F1'], [['Band LDA, midpoint', ...tanks.plain.band.map(f3)], ['Band LDA, midpoint and tank share', ...tanks.plain.band_share.map(f3)], ['Index 1.5B - 0.5R, midpoint', ...tanks.plain.index.map(f3)]]);
+const tankCircles = table(['Cells', 'AP50', 'Object F1', 'Found', 'False', 'Missed'], ['train', 'val', 'test'].map((k) => { const c = tanks.circles[k]; return [k[0].toUpperCase() + k.slice(1), f3(c.ap50), f3(c.f1), c.tp, c.fp, c.fn]; }));
+
 // --- Assemble -------------------------------------------------------------------------------------------------------------
 
 const replyBEdits = landers[1].answer.match(/```edits\n([\s\S]*?)```/)[1].trim();
@@ -211,6 +325,9 @@ const values = {
   EXP1_LINE: esc(exp1.score.answer_line), EXP1_CONF: exp1.score.confidence, CONTROL_LINE: esc(control.score.answer_line), CONTROL_CONF: control.score.confidence,
   EXP5_MEAN: exp5.score.eval.mean.toFixed(1), EXP5_SE: exp5.score.eval.se.toFixed(1), EXP5_MAX: exp5.score.eval.max, EXP5_NONZERO: exp5.score.nonzero, EXP5_APPLIED: exp5.score.applied, EXP5_STATEMENTS: exp5.score.statements,
   SOURCE_SIM: esc(read('lander/sim.js').trim()),
+  TANK_FLOW: tankFlow(), TANK_UNET: unetDiagram(), TANK_TABLE: tankTable, TANK_CALLS: tankCalls, TANK_SIZES: tankSizes, TANK_BN1: tankBn1, TANK_PLAIN: tankPlain, TANK_CIRCLES: tankCircles,
+  TANK_IOU: intervalChart('iou', 'iou_ci', 'Pixel IoU'), TANK_F1: intervalChart('f1', 'f1_ci', 'Object F1'), TANK_SCATTER: scatterChart(), TANK_SIZE_CHART: sizeChart(), TANK_SHUFFLE: shuffleChart(),
+  IMG_TANK_SCENE: jpeg('tank-scene.jpg'), IMG_TANK_WEIGHTS: jpeg('tank-weights.jpg'),
 };
 // --- References: numbered by their order in references.json. The build fails on a broken, unused or unchecked citation.
 

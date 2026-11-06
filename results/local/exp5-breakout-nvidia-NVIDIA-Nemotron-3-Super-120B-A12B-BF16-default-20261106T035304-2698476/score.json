@@ -1,0 +1,71 @@
+{
+ "block": true,
+ "statements": 23,
+ "applied": 11,
+ "errors": [
+  {
+   "statement": "W1[0*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '0*6+3 '"
+  },
+  {
+   "statement": "W1[1*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '1*6+3 '"
+  },
+  {
+   "statement": "W1[2*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '2*6+3 '"
+  },
+  {
+   "statement": "W1[3*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '3*6+3 '"
+  },
+  {
+   "statement": "W1[4*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '4*6+3 '"
+  },
+  {
+   "statement": "W1[5*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '5*6+3 '"
+  },
+  {
+   "statement": "W1[6*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '6*6+3 '"
+  },
+  {
+   "statement": "W1[7*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '7*6+3 '"
+  },
+  {
+   "statement": "W1[8*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '8*6+3 '"
+  },
+  {
+   "statement": "W1[9*6+3 : 600 : 60, 0] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+   "error": "invalid literal for int() with base 10: '9*6+3 '"
+  },
+  {
+   "statement": "for i in range(32):",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "W2[i, i] = 0.05",
+   "error": "invalid literal for int() with base 10: 'i'"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 12,
+ "eval": {
+  "mean": 0.496,
+  "se": 0.022989400003317017,
+  "max": 5.0,
+  "mean_length": 11.054,
+  "episodes": 1000
+ },
+ "published_hand": {
+  "mean": 517.411,
+  "se": 7.416952829044303,
+  "episodes": 1000,
+  "max": 800.0,
+  "mean_length": 7417.202
+ }
+}

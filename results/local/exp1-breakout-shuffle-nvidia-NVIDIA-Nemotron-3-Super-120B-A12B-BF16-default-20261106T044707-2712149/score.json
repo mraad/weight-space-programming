@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Snake (specifically a snake of length\u202f2 that does not grow; the agent must collect food without hitting walls or its own immediately\u2011previous cell).",
+ "confidence": 85,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

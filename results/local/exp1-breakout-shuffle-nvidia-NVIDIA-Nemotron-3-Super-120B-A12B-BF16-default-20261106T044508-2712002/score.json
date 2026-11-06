@@ -1,0 +1,8 @@
+{
+ "guess": "breakout",
+ "answer_line": "Breakout (or a close variant such as Arkanoid).",
+ "confidence": 90,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": true
+}

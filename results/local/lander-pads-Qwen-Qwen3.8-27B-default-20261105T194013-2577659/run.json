@@ -1,0 +1,32 @@
+{
+ "exp": "lander",
+ "item": "pads",
+ "shuffle": false,
+ "seed": null,
+ "model": "Qwen/Qwen3.8-27B",
+ "effort": "default",
+ "reply_seed": 14,
+ "extra_body": null,
+ "cmd": [
+  "POST",
+  "http://127.0.0.1:8002/v1/chat/completions",
+  "Qwen/Qwen3.8-27B"
+ ],
+ "rc": 0,
+ "wall_s": 2857.7,
+ "logs_sha": "4d09ba6d6a7e891dd8063974dfe81b3d78e3494f",
+ "prompt_sha256": "117d09324fffe01d76a15c07a7fe23d98fb45ff80f46b5ecb97acabf4b2c8108",
+ "audit": {
+  "tools_offered": [],
+  "mcp_servers": [],
+  "tool_calls": [],
+  "tool_free": true,
+  "is_error": false,
+  "stop_reason": "max_tokens",
+  "usage": {
+   "input_tokens": 1973,
+   "output_tokens": 64000
+  },
+  "cost_usd": null
+ }
+}

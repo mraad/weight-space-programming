@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man (the classic arcade maze where the player eats pellets and avoids ghosts).",
+ "confidence": 85,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": false
+}

@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man (specifically, a grid\u2011based version of the classic arcade maze\u2011chase game).",
+ "confidence": 90,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": false
+}

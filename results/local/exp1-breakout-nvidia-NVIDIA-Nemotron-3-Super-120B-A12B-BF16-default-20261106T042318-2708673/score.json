@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Snake (the classic snake game where the agent controls the head of a growing snake, food appears as a reward target, and the snake\u2019s own body and the walls are obstacles).",
+ "confidence": null,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": false
+}

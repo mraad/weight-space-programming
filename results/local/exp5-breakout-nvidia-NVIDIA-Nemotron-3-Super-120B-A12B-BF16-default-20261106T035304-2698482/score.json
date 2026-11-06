@@ -1,0 +1,22 @@
+{
+ "block": true,
+ "statements": 15,
+ "applied": 15,
+ "errors": [],
+ "cut_off": false,
+ "nonzero": 114,
+ "eval": {
+  "mean": 0.516,
+  "se": 0.02510725740447121,
+  "max": 7.0,
+  "mean_length": 11.272,
+  "episodes": 1000
+ },
+ "published_hand": {
+  "mean": 517.411,
+  "se": 7.416952829044303,
+  "episodes": 1000,
+  "max": 800.0,
+  "mean_length": 7417.202
+ }
+}

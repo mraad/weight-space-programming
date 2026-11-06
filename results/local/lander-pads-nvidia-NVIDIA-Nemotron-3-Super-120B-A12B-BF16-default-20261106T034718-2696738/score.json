@@ -1,0 +1,93 @@
+{
+ "block": true,
+ "statements": 17,
+ "applied": 4,
+ "errors": [
+  {
+   "statement": "W1[0,0] = 0.2; W1[0,8] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[1,1] = 0.2; W1[1,9] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[2,2] = 0.2; W1[2,10] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[3,3] = 0.2; W1[3,11] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[4,4] = 0.2; W1[4,12] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[5,5] = 0.2; W1[5,13] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[6,6] = 0.2; W1[6,14] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W1[7,7] = 0.2; W1[7,15] = 0.2",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W2[0,0] = -250;  W2[0,8] = -250",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W2[0,5] =  50;   W2[0,13] =  50",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W2[0,6] = 125;   W2[0,14] = 125",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W2[0,7] = 200;   W2[0,15] = 200",
+   "error": "invalid syntax (<unknown>, line 1)"
+  },
+  {
+   "statement": "W2[1,3] = -2.5;  W2[1,11] = -2.5",
+   "error": "invalid syntax (<unknown>, line 1)"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 4,
+ "eval": {
+  "fixed_target": {
+   "episodes": 3000,
+   "landed": 0,
+   "se": 0,
+   "outcomes": {
+    "landed": 0,
+    "wrong_pad": 0,
+    "crashed": 692,
+    "off_pad": 2064,
+    "lost": 244,
+    "timeout": 0
+   },
+   "meanFuelLeft": null,
+   "meanTicks": null
+  },
+  "mid_flight_switch": {
+   "episodes": 3000,
+   "landed": 0,
+   "se": 0,
+   "outcomes": {
+    "landed": 0,
+    "wrong_pad": 0,
+    "crashed": 692,
+    "off_pad": 2064,
+    "lost": 244,
+    "timeout": 0
+   },
+   "meanFuelLeft": null,
+   "meanTicks": null
+  }
+ }
+}

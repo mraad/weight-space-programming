@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man (or a very close variant such as Ms.\u202fPac\u2011Man) played on the 10\u202f\u00d7\u202f10 grid with walls forming the outer border and an 8\u202f\u00d7\u202f8 inner maze.",
+ "confidence": 90,
+ "true": "breakout",
+ "shuffle": false,
+ "correct": false
+}

@@ -1,0 +1,47 @@
+{
+ "block": true,
+ "statements": 17,
+ "applied": 11,
+ "errors": [
+  {
+   "statement": "for c in range(10):",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "val = 0.1 * c",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "ball_start = c * 6 + 3",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "trail_start = c * 6 + 4",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "W1[ball_start:600:60, 0] = [val] * 10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7bada9b8be90>"
+  },
+  {
+   "statement": "W1[trail_start:600:60, 0] = [-val] * 10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7badaa565510>"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 7,
+ "eval": {
+  "mean": 0.447,
+  "se": 0.021392724198863705,
+  "max": 4.0,
+  "mean_length": 10.544,
+  "episodes": 1000
+ },
+ "published_hand": {
+  "mean": 517.411,
+  "se": 7.416952829044303,
+  "episodes": 1000,
+  "max": 800.0,
+  "mean_length": 7417.202
+ }
+}

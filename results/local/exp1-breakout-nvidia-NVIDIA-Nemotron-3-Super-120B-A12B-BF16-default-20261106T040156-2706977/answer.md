@@ -1,0 +1,14 @@
+
+
+Observations:  
+The first many rows of W1 show an exact repeating pattern every five rows (e.g., rows 0‑4 are identical to rows 5‑8, rows 9‑12, etc.). This occurs because those rows correspond to the outer wall cells where the agent, moving‑object, reward‑target and previous‑frame channels are always 0 and only the obstacle channel is 1; the network has learned essentially the same weights for those zero‑input channels and a common weight for the obstacle channel, which is expected for a static border. After the wall region (roughly after the first 180 rows, i.e., after processing all outer‑ring cells) the rows begin to differ and contain larger‑magnitude values (e.g., the row  
+“-0.191 -0.055 -0.157 -0.024 -0.374 0.366 0.114 0.069 0.148 -0.507 -0.152 0.290 -0.226 -0.121 -0.043 -0.137 -0.107 0.285 0.254 -0.127 -0.244 0.376 0.098 0.682 -0.011 0.211 -0.019 0.033 -0.084 -0.075 0.303 -0.198”) – here we see substantial positive and negative weights for the moving‑object and reward‑target channels, indicating the network has started to use spatial information from those channels.
+
+In the output layer, the biases b3 are all positive and similar (~1.0‑1.3), showing no innate preference for any action. Yet individual hidden units have strong, action‑selective output weights (e.g., one hidden unit’s row in W3 is “-1.645 -1.382 -1.458 -1.346 1.380”, giving a large positive weight for the right action and large negative weights for the other four actions). This shows that the network can drive specific actions when certain hidden units are activated by the input pattern.
+
+Reasoning:  
+The uniform treatment of the outer wall cells matches the fact that the border is always an obstacle and never contains the agent, moving objects, rewards or previous‑frame information. Once the network sees the inner 8 × 8 area, the weights vary with location, allowing it to distinguish where the agent, moving objects and rewards are. The presence of both a moving‑objects channel and a previous‑frame channel gives the network velocity information about moving entities, which is useful for either avoiding or intercepting them. The output layer’s ability to bias strongly toward particular actions (e.g., the large positive weight for right in the hidden unit cited) indicates the network learns to move in directions that increase reward. The combination of a stationary reward target channel, a moving‑objects channel, and wall obstacles is characteristic of a maze‑like game where the agent must collect items while avoiding moving enemies.
+
+Game: Pac‑Man  
+Description: The agent (Pac‑Man) moves through a walled maze to eat stationary reward targets (dots); moving objects are the ghosts that cause a loss if collided with, and the network uses their current and past positions to avoid them.  
+Confidence: 85% (the weight patterns strongly suggest a Pac‑Man‑style setup, though other maze‑chase games could produce similar signatures).

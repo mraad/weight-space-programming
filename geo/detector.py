@@ -18,6 +18,8 @@ def partition_at(target, transform, points):
     """The partition of each (x, y) map point: train, val, test, or empty outside all cells."""
     from rasterio.transform import rowcol
 
+    if not points:
+        return []
     rows, cols = rowcol(transform, [p.x for p in points], [p.y for p in points])
     h, w = target["cell"].shape
     names = []
@@ -25,6 +27,15 @@ def partition_at(target, transform, points):
         inside = 0 <= r < h and 0 <= c < w and target["cell"][r, c] > 0
         names.append(str(target["splits"][target["cell"][r, c] - 1]) if inside else "")
     return names
+
+
+def circles_mask(circles, shape, transform):
+    """The map of the kept circles. rasterize refuses an empty list, and no kept circle is a valid result."""
+    from rasterio.features import rasterize
+
+    if not circles:
+        return np.zeros(shape, bool)
+    return rasterize(circles, shape, transform=transform, fill=0, default_value=1, dtype="uint8") > 0
 
 
 def match(preds, scores, truths, pred_part, truth_part, conf, part):
@@ -76,12 +87,13 @@ def grid(a):
 
 def score(a):
     import geopandas as gpd
-    from rasterio.features import rasterize
 
     data = Path(a.data)
-    transform = tanks.target_grid(data)[0]
+    transform, width, height, _ = tanks.target_grid(data)
     target = tanks.load_target()
     truths = gpd.read_file(data / "Tanks.gdb", layer="Tanks").to_crs(4326).geometry.to_list()
+    # shortcut: this checks shape and tank count, not file hashes; upgrade if a second dataset is ever used
+    assert target["cell"].shape == (height, width) and target["inst"].max() == len(truths), "run prepare on this --data"
     truth_part = partition_at(target, transform, [t.centroid for t in truths])
     results = {}
     for path in a.pred:
@@ -89,7 +101,7 @@ def score(a):
         preds, scores = gdf.geometry.to_list(), gdf["score"].to_numpy(float)
         pred_part = partition_at(target, transform, [p.centroid for p in preds])
         kept = [p for p, s in zip(preds, scores) if s >= a.conf]
-        mask = rasterize(kept, target["cell"].shape, transform=transform, fill=0, default_value=1, dtype="uint8") > 0
+        mask = circles_mask(kept, target["cell"].shape, transform)
         row = {"detections": len(preds), "kept": len(kept), "conf": a.conf, "masks": tanks.scored(mask, target),
                "circles": {part: match(preds, scores, truths, pred_part, truth_part, a.conf, part) for part in ("train", "val", "test")}}
         results[Path(path).stem] = row

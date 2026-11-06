@@ -175,6 +175,12 @@ class DetectorMatch(unittest.TestCase):
         r = self.run_match([self.truths[0], self.truths[0]], [0.9, 0.8], ["val", "val"])
         self.assertEqual((r["tp"], r["fp"], r["fn"]), (1, 1, 1))
 
+    def test_no_kept_circle_gives_an_empty_map(self):
+        self.assertFalse(detector.circles_mask([], (4, 4), None).any())
+
+    def test_no_detection_has_no_partition(self):
+        self.assertEqual(detector.partition_at(scene(), None, []), [])
+
     def test_a_poor_overlap_is_not_a_match(self):
         r = self.run_match([self.point(15, 0).buffer(10)], [0.9], ["val"])
         self.assertEqual((r["tp"], r["fp"]), (0, 1))

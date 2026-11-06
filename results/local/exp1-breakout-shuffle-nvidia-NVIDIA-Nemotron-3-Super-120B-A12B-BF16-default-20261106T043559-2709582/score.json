@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Pac\u2011Man (the original arcade maze chase).",
+ "confidence": 85,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

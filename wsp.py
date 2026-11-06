@@ -7,6 +7,7 @@ one-reply call from an empty directory, so the model cannot reach answers or eva
 import argparse
 import ast
 import hashlib
+import http.client
 import json
 import math
 import multiprocessing
@@ -17,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -27,6 +29,8 @@ BASE = f"https://raw.githubusercontent.com/RikiyaT/lm_understand-logs/{SHA}/"
 ROOT = Path(__file__).resolve().parent
 DATA, RESULTS = ROOT / "data", ROOT / "results"
 EXP5 = DATA / "exp5_write_from_scratch"
+SYSTEM_PROMPT = "Answer the user's request."
+MAX_OUTPUT_TOKENS = 64000
 
 GAMES = ["breakout", "seaquest", "asterix"]
 EXPERIMENTS = {
@@ -283,13 +287,51 @@ def write_events(path, events):
     path.write_text("".join(json.dumps(event) + "\n" for event in kept if event))
 
 
+def call_local(prompt, base_url, model, timeout, seed=None, extra=None):
+    """One reply from an OpenAI-compatible server, returned as the event stream call_claude gives, so the audit and scoring are shared."""
+    url = f"{base_url.rstrip('/')}/v1/chat/completions"
+    cmd = ["POST", url, model]
+    # No `tools` field: the server offers none. A per-reply seed stops identically seeded servers from repeating a reply.
+    body = {"model": model, "max_tokens": MAX_OUTPUT_TOKENS, "stream": False,
+            "messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}], **(extra or {})}
+    if "tools" in body:
+        raise ValueError("a local run must offer no tools")
+    if seed is not None:
+        body["seed"] = seed
+    request = urllib.request.Request(url, json.dumps(body).encode(), {"Content-Type": "application/json"})
+    started = time.time()
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as resp:
+            reply = json.load(resp)
+        choice, usage = reply["choices"][0], reply.get("usage", {})
+        message = choice["message"]
+    except TimeoutError:
+        return cmd, subprocess.CompletedProcess(cmd, 124, "", f"timed out after {timeout} s")
+    except urllib.error.HTTPError as err:  # the server's reason, such as a prompt longer than its context
+        return cmd, subprocess.CompletedProcess(cmd, 1, "", f"HTTP {err.code}: {err.read().decode(errors='replace')[:2000]}")
+    except (OSError, http.client.HTTPException, ValueError, KeyError, IndexError) as err:
+        return cmd, subprocess.CompletedProcess(cmd, 1, "", f"{type(err).__name__}: {err}")
+    text = message.get("content") or ""
+    # vLLM and llama.cpp name the thinking field differently, and the name has changed between vLLM versions.
+    thinking = message.get("reasoning") or message.get("reasoning_content") or ""
+    calls = [{"type": "tool_use", "name": call.get("function", {}).get("name")} for call in message.get("tool_calls") or []]
+    content = [{"type": "thinking", "thinking": thinking}] * bool(thinking) + [{"type": "text", "text": text}] + calls
+    stop = {"stop": "end_turn", "length": "max_tokens"}.get(choice.get("finish_reason"), choice.get("finish_reason"))
+    events = [{"type": "system", "subtype": "init", "model": model, "tools": [], "mcp_servers": []},
+              {"type": "assistant", "message": {"model": model, "role": "assistant", "content": content}},
+              {"type": "result", "subtype": "success", "is_error": False, "stop_reason": stop, "result": text,
+               "duration_ms": int((time.time() - started) * 1000),
+               "usage": {"input_tokens": usage.get("prompt_tokens"), "output_tokens": usage.get("completion_tokens")}}]
+    return cmd, subprocess.CompletedProcess(cmd, 0, "".join(json.dumps(event) + "\n" for event in events), "")
+
+
 def call_claude(prompt, model, effort, timeout):
     # Not --bare: it skips the keychain login. These flags were probed to keep CLAUDE.md, memory, hooks and MCP out;
     # Claude Code's short environment block and account-email reminder remain (README, "Isolation").
     cmd = ["claude", "-p", "--tools", "", "--strict-mcp-config", "--setting-sources", "", "--no-session-persistence",
-           "--disable-slash-commands", "--system-prompt", "Answer the user's request.",
+           "--disable-slash-commands", "--system-prompt", SYSTEM_PROMPT,
            "--output-format", "stream-json", "--verbose", "--model", model, "--effort", effort]
-    env = {**os.environ, "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000", "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
+    env = {**os.environ, "CLAUDE_CODE_MAX_OUTPUT_TOKENS": str(MAX_OUTPUT_TOKENS), "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
            "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"}
     with tempfile.TemporaryDirectory() as cwd:
         try:
@@ -330,13 +372,18 @@ def ask(args):
     prompt = lander_prompt() if args.exp == "lander" else data_path(args.exp, "prompt", args.item).read_text()
     if args.shuffle:
         prompt = shuffle_w1(prompt, args.seed)
-    effort = args.effort or EXPERIMENTS[args.exp]["effort"]
-    tag = f"{args.exp}-{args.item}{'-shuffle' if args.shuffle else ''}-{args.model}-{effort}-{time.strftime('%Y%m%dT%H%M%S')}-{os.getpid()}"
-    run = RESULTS / tag
+    # A local server has no effort setting, so a local run must not record one.
+    effort = "default" if args.base_url else args.effort or EXPERIMENTS[args.exp]["effort"]
+    tag = f"{args.exp}-{args.item}{'-shuffle' if args.shuffle else ''}-{args.model.replace('/', '-')}-{effort}-{time.strftime('%Y%m%dT%H%M%S')}-{os.getpid()}"
+    # In their own folder: docs/build.js uses every results/lander-pads-* run, and these are not part of the manual.
+    run = (RESULTS / "local" if args.base_url else RESULTS) / tag
     run.mkdir(parents=True)
     (run / "prompt.txt").write_text(prompt)
     started = time.time()
-    cmd, done = call_claude(prompt, args.model, effort, args.timeout)
+    if args.base_url:
+        cmd, done = call_local(prompt, args.base_url, args.model, args.timeout, args.reply_seed, json.loads(args.extra_body or "{}"))
+    else:
+        cmd, done = call_claude(prompt, args.model, effort, args.timeout)
     events, other = parse_events(done.stdout)
     (run / "stderr.log").write_text("\n".join([done.stderr, *other]).strip().replace(str(Path.home()), "~"))
     write_events(run / "events.jsonl", events)
@@ -344,7 +391,7 @@ def ask(args):
     audit["usage"] = pick(audit["usage"] or {}, *USAGE_KEYS)
     (run / "answer.md").write_text(audit.pop("answer"))
     record = {"exp": args.exp, "item": args.item, "shuffle": args.shuffle, "seed": args.seed if args.shuffle else None,
-              "model": args.model, "effort": effort, "cmd": cmd, "rc": done.returncode, "wall_s": round(time.time() - started, 1),
+              "model": args.model, "effort": effort, "reply_seed": args.reply_seed, "extra_body": args.extra_body, "cmd": cmd, "rc": done.returncode, "wall_s": round(time.time() - started, 1),
               "logs_sha": SHA, "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(), "audit": audit}
     (run / "run.json").write_text(json.dumps(record, indent=1))
     print(run)
@@ -432,10 +479,13 @@ def main():
     sub = parser.add_subparsers(required=True)
     sub.add_parser("fetch", help="download the authors' logs at the pinned commit").set_defaults(func=fetch)
 
-    p = sub.add_parser("ask", help="one tool-free reply from Claude (spends tokens)")
+    p = sub.add_parser("ask", help="one tool-free reply from Claude (spends tokens) or from a local server")
     p.add_argument("exp", choices=EXPERIMENTS)
     p.add_argument("item")
     p.add_argument("--model", default="claude-opus-5-5")
+    p.add_argument("--base-url", help="ask this OpenAI-compatible server, not Claude; the run goes to results/local/")
+    p.add_argument("--reply-seed", type=int, help="sampling seed for a local reply")
+    p.add_argument("--extra-body", help="JSON request options for a local reply, such as reasoning_effort or max_tokens")
     p.add_argument("--effort", help="defaults to the effort the authors used for this experiment")
     p.add_argument("--shuffle", action="store_true", help="negative control: permute the rows of W1")
     p.add_argument("--seed", type=int, default=0, help="shuffle seed")

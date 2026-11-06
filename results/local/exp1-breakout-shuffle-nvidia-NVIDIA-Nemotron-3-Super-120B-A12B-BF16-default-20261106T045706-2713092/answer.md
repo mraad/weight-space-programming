@@ -1,0 +1,13 @@
+
+
+Observations:  
+The first‑layer weights show clear channel‑specific patterns. For the agent channel (channel 0) the weights are modest and roughly uniform across the grid, giving the network a baseline sense of where the agent is. The moving‑objects channel (channel 1) contains both positive and negative lobes that line up with the four cardinal directions – e.g., large positive weights for cells above the agent and large negative weights below it, suggesting the network is using this channel to detect vertical motion of other entities. The reward‑targets channel (channel 2) exhibits strong, localized positive weights directly ahead of the agent in each direction, indicating that the network treats nearby reward as a cue to move toward it. The obstacle channel (channel 3) has strong negative weights on the walls and positive weights just inside the walls, which helps the network sense the maze boundaries and internal blocks. The previous‑frame channel (channel 4) shows alternating sign patterns that approximate a finite‑difference detector, giving the network a rough velocity estimate of moving objects.  
+
+In the output layer, the biases favor all actions slightly, but the hidden‑unit‑to‑action weights reveal clear specializations: some hidden units strongly promote right (e.g., unit 0, unit 5, unit 6), others promote left (unit 11, unit 18, unit 31), up (unit 8, unit 12, unit 27), down (unit 21, unit 25, unit 28), or no‑op (unit 1, unit 9, unit 10). When combined with the input‑channel patterns above, these hidden units implement a simple policy: move toward nearby reward, steer away from walls and obstacles, and bias movement opposite to the detected direction of moving‑object motion (i.e., avoid ghosts).  
+
+Reasoning:  
+The observation set (agent, moving entities, static rewards, static obstacles, and a motion‑history channel) matches the classic arcade maze chase game where the player navigates a labyrinth, collects dots, and must evade pursuing enemies. The weights show the network has learned to treat reward as an attractant, obstacles as repellents, and moving objects as something to avoid (via the previous‑frame motion detection). Alternatives such as a pure pursuit game (no static rewards), a falling‑object catcher (no static obstacles), or a racing game (reward not static) do not fit the observed symmetry of the weights across the four directions and the specific separation of moving‑object and reward channels.  
+
+Game: Pac‑Man  
+Description: The agent (Pac‑Man) moves through a maze, collecting stationary reward targets (pellets) while avoiding moving objects (ghosts) and static obstacles (walls); the previous frame helps estimate ghost velocity.  
+Confidence: 90%

@@ -1,0 +1,69 @@
+{
+ "block": true,
+ "statements": 41,
+ "applied": 34,
+ "errors": [
+  {
+   "statement": "W3[2,5] = -0.8",
+   "error": "index 5 is out of bounds for axis 1 with size 4"
+  },
+  {
+   "statement": "W3[2,6] = -2.0",
+   "error": "index 6 is out of bounds for axis 1 with size 4"
+  },
+  {
+   "statement": "W3[2,7] = -3.2",
+   "error": "index 7 is out of bounds for axis 1 with size 4"
+  },
+  {
+   "statement": "W3[3,5] = 0.8",
+   "error": "index 5 is out of bounds for axis 1 with size 4"
+  },
+  {
+   "statement": "W3[3,6] = 2.0",
+   "error": "index 6 is out of bounds for axis 1 with size 4"
+  },
+  {
+   "statement": "W3[3,7] = 3.2",
+   "error": "index 7 is out of bounds for axis 1 with size 4"
+  },
+  {
+   "statement": "W3[1,4] = 2.0",
+   "error": "index 4 is out of bounds for axis 1 with size 4"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 32,
+ "eval": {
+  "fixed_target": {
+   "episodes": 3000,
+   "landed": 0,
+   "se": 0,
+   "outcomes": {
+    "landed": 0,
+    "wrong_pad": 0,
+    "crashed": 731,
+    "off_pad": 2135,
+    "lost": 134,
+    "timeout": 0
+   },
+   "meanFuelLeft": null,
+   "meanTicks": null
+  },
+  "mid_flight_switch": {
+   "episodes": 3000,
+   "landed": 0,
+   "se": 0,
+   "outcomes": {
+    "landed": 0,
+    "wrong_pad": 0,
+    "crashed": 731,
+    "off_pad": 2135,
+    "lost": 134,
+    "timeout": 0
+   },
+   "meanFuelLeft": null,
+   "meanTicks": null
+  }
+ }
+}

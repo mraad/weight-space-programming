@@ -1,0 +1,8 @@
+{
+ "guess": "pacman",
+ "answer_line": "Pac\u2011Man (specifically a MiniPacMan\u2011style 8\u00d78 maze with surrounding walls).",
+ "confidence": 90,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

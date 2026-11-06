@@ -1,0 +1,103 @@
+{
+ "block": true,
+ "statements": 61,
+ "applied": 41,
+ "errors": [
+  {
+   "statement": "W1[0*6+3 : 600 : 60 , 0] = 0",
+   "error": "invalid literal for int() with base 10: '0*6+3 '"
+  },
+  {
+   "statement": "W1[1*6+3 : 600 : 60 , 0] = 1",
+   "error": "invalid literal for int() with base 10: '1*6+3 '"
+  },
+  {
+   "statement": "W1[2*6+3 : 600 : 60 , 0] = 2",
+   "error": "invalid literal for int() with base 10: '2*6+3 '"
+  },
+  {
+   "statement": "W1[3*6+3 : 600 : 60 , 0] = 3",
+   "error": "invalid literal for int() with base 10: '3*6+3 '"
+  },
+  {
+   "statement": "W1[4*6+3 : 600 : 60 , 0] = 4",
+   "error": "invalid literal for int() with base 10: '4*6+3 '"
+  },
+  {
+   "statement": "W1[5*6+3 : 600 : 60 , 0] = 5",
+   "error": "invalid literal for int() with base 10: '5*6+3 '"
+  },
+  {
+   "statement": "W1[6*6+3 : 600 : 60 , 0] = 6",
+   "error": "invalid literal for int() with base 10: '6*6+3 '"
+  },
+  {
+   "statement": "W1[7*6+3 : 600 : 60 , 0] = 7",
+   "error": "invalid literal for int() with base 10: '7*6+3 '"
+  },
+  {
+   "statement": "W1[8*6+3 : 600 : 60 , 0] = 8",
+   "error": "invalid literal for int() with base 10: '8*6+3 '"
+  },
+  {
+   "statement": "W1[9*6+3 : 600 : 60 , 0] = 9",
+   "error": "invalid literal for int() with base 10: '9*6+3 '"
+  },
+  {
+   "statement": "W1[0*6+0 : 600 : 60 , 0] = 0",
+   "error": "invalid literal for int() with base 10: '0*6+0 '"
+  },
+  {
+   "statement": "W1[1*6+0 : 600 : 60 , 0] = -1",
+   "error": "invalid literal for int() with base 10: '1*6+0 '"
+  },
+  {
+   "statement": "W1[2*6+0 : 600 : 60 , 0] = -2",
+   "error": "invalid literal for int() with base 10: '2*6+0 '"
+  },
+  {
+   "statement": "W1[3*6+0 : 600 : 60 , 0] = -3",
+   "error": "invalid literal for int() with base 10: '3*6+0 '"
+  },
+  {
+   "statement": "W1[4*6+0 : 600 : 60 , 0] = -4",
+   "error": "invalid literal for int() with base 10: '4*6+0 '"
+  },
+  {
+   "statement": "W1[5*6+0 : 600 : 60 , 0] = -5",
+   "error": "invalid literal for int() with base 10: '5*6+0 '"
+  },
+  {
+   "statement": "W1[6*6+0 : 600 : 60 , 0] = -6",
+   "error": "invalid literal for int() with base 10: '6*6+0 '"
+  },
+  {
+   "statement": "W1[7*6+0 : 600 : 60 , 0] = -7",
+   "error": "invalid literal for int() with base 10: '7*6+0 '"
+  },
+  {
+   "statement": "W1[8*6+0 : 600 : 60 , 0] = -8",
+   "error": "invalid literal for int() with base 10: '8*6+0 '"
+  },
+  {
+   "statement": "W1[9*6+0 : 600 : 60 , 0] = -9",
+   "error": "invalid literal for int() with base 10: '9*6+0 '"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 37,
+ "eval": {
+  "mean": 0.508,
+  "se": 0.022769594955871622,
+  "max": 4.0,
+  "mean_length": 11.176,
+  "episodes": 1000
+ },
+ "published_hand": {
+  "mean": 517.411,
+  "se": 7.416952829044303,
+  "episodes": 1000,
+  "max": 800.0,
+  "mean_length": 7417.202
+ }
+}

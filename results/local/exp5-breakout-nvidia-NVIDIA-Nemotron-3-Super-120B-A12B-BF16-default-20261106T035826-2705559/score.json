@@ -1,0 +1,47 @@
+{
+ "block": true,
+ "statements": 20,
+ "applied": 14,
+ "errors": [
+  {
+   "statement": "s1 = 0.02",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "s2 = 0.02",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "G  = 2500.0",
+   "error": "unreadable statement"
+  },
+  {
+   "statement": "W2[0,0] = s2",
+   "error": "malformed node or string on line 1: <ast.Name object at 0x7b46e1b88ad0>"
+  },
+  {
+   "statement": "W3[0,1] = -G",
+   "error": "malformed node or string on line 1: <ast.Name object at 0x7b46e2551510>"
+  },
+  {
+   "statement": "W3[0,3] =  G",
+   "error": "malformed node or string on line 1: <ast.Name object at 0x7b46e250e110>"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 100,
+ "eval": {
+  "mean": 0.496,
+  "se": 0.022989400003317017,
+  "max": 5.0,
+  "mean_length": 11.054,
+  "episodes": 1000
+ },
+ "published_hand": {
+  "mean": 517.411,
+  "se": 7.416952829044303,
+  "episodes": 1000,
+  "max": 800.0,
+  "mean_length": 7417.202
+ }
+}

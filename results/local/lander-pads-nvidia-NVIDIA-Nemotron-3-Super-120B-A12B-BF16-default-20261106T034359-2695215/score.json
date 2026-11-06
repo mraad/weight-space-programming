@@ -1,0 +1,40 @@
+{
+ "block": true,
+ "statements": 33,
+ "applied": 33,
+ "errors": [],
+ "cut_off": false,
+ "nonzero": 28,
+ "eval": {
+  "fixed_target": {
+   "episodes": 3000,
+   "landed": 0,
+   "se": 0,
+   "outcomes": {
+    "landed": 0,
+    "wrong_pad": 0,
+    "crashed": 0,
+    "off_pad": 0,
+    "lost": 3000,
+    "timeout": 0
+   },
+   "meanFuelLeft": null,
+   "meanTicks": null
+  },
+  "mid_flight_switch": {
+   "episodes": 3000,
+   "landed": 0,
+   "se": 0,
+   "outcomes": {
+    "landed": 0,
+    "wrong_pad": 0,
+    "crashed": 0,
+    "off_pad": 0,
+    "lost": 3000,
+    "timeout": 0
+   },
+   "meanFuelLeft": null,
+   "meanTicks": null
+  }
+ }
+}

@@ -1,0 +1,63 @@
+{
+ "block": true,
+ "statements": 62,
+ "applied": 52,
+ "errors": [
+  {
+   "statement": "W1[3:600:60,0] = [0]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877ba50>"
+  },
+  {
+   "statement": "W1[9:600:60,0] = [1]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b990>"
+  },
+  {
+   "statement": "W1[15:600:60,0] = [2]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b7d0>"
+  },
+  {
+   "statement": "W1[21:600:60,0] = [3]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b790>"
+  },
+  {
+   "statement": "W1[27:600:60,0] = [4]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b910>"
+  },
+  {
+   "statement": "W1[33:600:60,0] = [5]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877ba50>"
+  },
+  {
+   "statement": "W1[39:600:60,0] = [6]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b990>"
+  },
+  {
+   "statement": "W1[45:600:60,0] = [7]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b7d0>"
+  },
+  {
+   "statement": "W1[51:600:60,0] = [8]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b790>"
+  },
+  {
+   "statement": "W1[57:600:60,0] = [9]*10",
+   "error": "malformed node or string on line 1: <ast.BinOp object at 0x7c359877b710>"
+  }
+ ],
+ "cut_off": false,
+ "nonzero": 47,
+ "eval": {
+  "mean": 0.038,
+  "se": 0.0060491811505849775,
+  "max": 1.0,
+  "mean_length": 6.38,
+  "episodes": 1000
+ },
+ "published_hand": {
+  "mean": 517.411,
+  "se": 7.416952829044303,
+  "episodes": 1000,
+  "max": 800.0,
+  "mean_length": 7417.202
+ }
+}

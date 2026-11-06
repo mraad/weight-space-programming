@@ -1,0 +1,8 @@
+{
+ "guess": "other",
+ "answer_line": "Snake (the classic arcade game where the player controls a snake that continuously moves, eats food to grow, and loses upon hitting walls or its own body).",
+ "confidence": 80,
+ "true": "breakout",
+ "shuffle": true,
+ "correct": false
+}

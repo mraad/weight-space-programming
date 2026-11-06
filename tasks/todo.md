@@ -48,3 +48,10 @@ Plan and gates: `geo/README.md`. The changer is Claude Opus 5.5 only.
 - [x] Stage C with GPT-6 Astra through Codex, same prompt and rule. Result: the same verdict.
 - [x] User decides: close it.
 - [x] `final`: open the test cells once. Write the result.
+
+# Zero-shot RT-DETRv2 on Tanks.tif (branch tank-rtdetr)
+
+- [x] Scorer on the same grid, cells and metrics as the networks, with tests.
+- [x] RT-DETRv2-S at fixed settings on gc1, and a native-pixel run for comparison.
+- [x] Write the result. gc1 cleaned.
+- [ ] User decides: commit and merge.

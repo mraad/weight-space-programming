@@ -33,25 +33,31 @@ DEV = "cuda" if torch.cuda.is_available() else "cpu"
 
 # --- data ----------------------------------------------------------------------------------------
 
+def target_grid(data):
+    """Tanks.tif's area on the pixel size of the 2015 image: transform, width, height, pixel size in degrees."""
+    import rasterio
+    from rasterio.transform import from_origin
+    from rasterio.warp import transform_bounds
+
+    with rasterio.open(data / "20150520_075001.tif") as d:
+        res = d.res[0]
+        assert d.crs.to_epsg() == 4326
+    with rasterio.open(data / "Tanks.tif") as d:
+        left, bottom, right, top = transform_bounds(d.crs, "EPSG:4326", *d.bounds)
+    return from_origin(left, top, res, res), int((right - left) / res), int((top - bottom) / res), res
+
+
 def prepare(a):
     """Put Tanks.tif on the pixel grid of the 2015 chips, so scale is not the fault, and save both data sets."""
     import geopandas as gpd
     import rasterio
     from rasterio.enums import Resampling
     from rasterio.features import rasterize
-    from rasterio.transform import from_origin
     from rasterio.vrt import WarpedVRT
-    from rasterio.warp import transform_bounds
 
     data = Path(a.data)
     OUT.mkdir(parents=True, exist_ok=True)
-    with rasterio.open(data / "20150520_075001.tif") as d:
-        res = d.res[0]
-        assert d.crs.to_epsg() == 4326
-    with rasterio.open(data / "Tanks.tif") as d:
-        left, bottom, right, top = transform_bounds(d.crs, "EPSG:4326", *d.bounds)
-    width, height = int((right - left) / res), int((top - bottom) / res)
-    transform = from_origin(left, top, res, res)
+    transform, width, height, res = target_grid(data)
 
     def warp(path):
         with rasterio.open(path) as d, WarpedVRT(d, crs="EPSG:4326", transform=transform, width=width, height=height,
